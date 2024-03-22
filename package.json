@@ -1,0 +1,12 @@
+{
+	"name": "as1-web-canvas",
+	"version": "1.0.0",
+	"main": "index.html",
+	"repository": "https://github.com/ritmoHung/SS-AS1",
+	"author": "Ritmo Hung <jajh102098@gmail.com>",
+	"license": "MIT",
+
+    "scripts": {
+        "dev": "npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/style.css --watch"
+    }
+}
