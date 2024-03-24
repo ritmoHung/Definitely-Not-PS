@@ -164,17 +164,46 @@ p {
     }
 }
 
+.color-picker {
+    &[data-mode="HSB"] .picker-area {
+        background: linear-gradient(to top, #000 0%, rgb(0 0 0 / 0) 100%),
+                    linear-gradient(to right, #FFF 0%, rgb(255 255 255 / 0) 100%);
+    }
+
+    &[data-mode="HSL"] .picker-area {
+        background: linear-gradient(to bottom, hsl(0 0% 100%) 0%, hsl(0 0% 100% / 0) 50%, hsl(0 0% 0%) 100%),
+                    linear-gradient(to right, hsl(0 0% 50%) 0%, hsl(0 0% 50% / 0) 100%);
+    }
+
+    & .picker-area {
+        @apply relative w-full aspect-square overflow-hidden;
+        cursor: url("../cursors/fa-regular-circle.svg") 16 16, auto;
+
+        & .picker-caret {
+            @apply absolute w-4 aspect-square rounded-full border-neutral-500 border-2;
+            @apply -translate-x-1/2 -translate-y-1/2;
+        }
+    }
+
+    & .hue-picker {
+        @apply relative w-5 cursor-pointer;
+        background: linear-gradient(to top, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);
+
+        & .hue-picker-caret {
+            @apply absolute ps-2 text-sm cursor-pointer;
+            @apply -translate-x-full -translate-y-1/2;
+        }
+    }
+}
+
+.color-grid {
+    @apply size-4 md:size-6 border-white border-2;
+    box-shadow: 0 0 0 1px black;
+}
+
 
 
 /* ---------------------------- STYLES ---------------------------- */
-#canvas-area {
-    cursor: grab;
-}
-
-#canvas-area:active {
-    cursor: grabbing;
-}
-
 button, select, input {
     &:focus-visible {
         outline: #A3A3A3 2px solid !important;
@@ -187,6 +216,28 @@ select {
 
 input[type="range"] {
 
+}
+
+fieldset label {
+    --size: 1.3em;
+    --inner-size: 0.7em;
+    @apply grid items-center gap-1 cursor-pointer;
+    grid-template-columns: var(--size) auto;
+
+    & input[type="radio"] {
+        @apply appearance-none grid place-items-center place-content-center size-[var(--size)];
+        @apply border-neutral-400 border-2 rounded-[0.4rem] cursor-pointer;
+
+        &::before {
+            @apply content-[""] size-[var(--inner-size)];
+            @apply rounded-[0.2rem] motion-safe:transition-all;
+            scale: 0;
+            box-shadow: inset var(--size) var(--size) #A3A3A3;
+        }
+        &:checked::before {
+            scale: 1;
+        }
+    }
 }
 
 

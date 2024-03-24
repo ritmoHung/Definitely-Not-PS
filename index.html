@@ -31,31 +31,31 @@
                 <!-- Basic Operations -->
                 <ul class="self-stretch tool-group [&_button]:h-full">
                     <li>
-                        <button type="button" title="還原" class="btn" aria-label="還原" onclick="">
+                        <button id="undo-button" type="button" title="還原" class="btn" aria-label="還原">
                             <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
                             <span class="hidden md:block">還原</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" title="重做" class="btn" aria-label="重做" onclick="">
+                        <button id="redo-button" type="button" title="重做" class="btn" aria-label="重做">
                             <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
                             <span class="hidden md:block">重做</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" title="捨棄" class="btn" aria-label="捨棄" onclick="">
+                        <button id="discard-button" type="button" title="捨棄" class="btn" aria-label="捨棄">
                             <i class="fa-solid fa-trash" aria-hidden="true"></i>
                             <span class="hidden md:block">捨棄</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" title="匯入" class="btn" aria-label="匯入" onclick="">
+                        <button id="import-button" type="button" title="匯入" class="btn" aria-label="匯入">
                             <i class="fa-solid fa-file-import" aria-hidden="true"></i>
                             <span class="hidden md:block">匯入</span>
                         </button>
                     </li>
                     <li>
-                        <button type="button" title="匯出" class="btn" aria-label="匯出" onclick="">
+                        <button id="export-button" type="button" title="匯出" class="btn" aria-label="匯出">
                             <i class="fa-solid fa-file-export" aria-hidden="true"></i>
                             <span class="hidden md:block">匯出</span>
                         </button>
@@ -73,15 +73,13 @@
                             <div class="dropdown tile-rounded-outline">
                                 <div class="dropdown-item">
                                     <h5>筆刷形狀</h5>
-                                    <select id="brush-shape" name="brush-shape" class="tile-rounded-outline text-xs" onchange="updateBrushShape(this.value)">
-                                        <option value="circle" selected>圓形</option>
-                                        <option value="square">正方形</option>
-                                        <option value="triangle">三角形</option>
+                                    <select id="brush-shape-select" name="brush-shape" class="tile-rounded-outline text-xs">
+                                        <!-- ? Injected by insertBrushShapeElements() -->
                                     </select>
                                 </div>
                                 <div class="dropdown-item">
                                     <h5>筆刷尺寸</h5>
-                                    <input id="brush-size" type="range" class="slider" min="1" max="200" value="10" step="1" oninput="updateBrushSize(this.value)" />
+                                    <input id="brush-size-input" type="range" class="slider" min="1" max="200" value="10" step="1" />
                                 </div>
                             </div>
                         </div>
@@ -95,7 +93,7 @@
                             <div class="dropdown tile-rounded-outline">
                                 <div class="dropdown-item">
                                     <h5>橡皮擦形狀</h5>
-                                    <select id="eraser-shape" name="eraser-shape" class="tile-rounded-outline text-xs" onchange="updateEraserShape(this.value)">
+                                    <select id="eraser-shape-select" name="eraser-shape" class="tile-rounded-outline text-xs" onchange="updateEraserShape(this.value)">
                                         <option value="circle" selected>圓形</option>
                                         <option value="square">正方形</option>
                                         <option value="triangle">三角形</option>
@@ -172,70 +170,46 @@
         <!-- Main -->
         <main class="grid grid-cols-[auto_1fr_auto] overflow-hidden">
             <!-- Left Siderbar -->
-            <div id="canvas-tools" class="panel grid auto-rows-min p-1 md:p-2">
-                <ul class="grid grid-cols-1 md:grid-cols-2 auto-rows-min gap-1 min-w-max">
-                    <li>
-                        <button type="button" title="手形工具" class="btn btn-tool" data-selected="false" aria-label="手形工具">
-                            <i class="fa-solid fa-hand" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="滴管工具" class="btn btn-tool" data-selected="false" aria-label="滴管工具">
-                            <i class="fa-solid fa-eye-dropper" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="筆刷工具" class="btn btn-tool" data-selected="true" aria-label="筆刷工具">
-                            <i class="fa-solid fa-paintbrush" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="橡皮擦工具" class="btn btn-tool" data-selected="false" aria-label="橡皮擦工具">
-                            <i class="fa-solid fa-eraser" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="填滿工具" class="btn btn-tool" data-selected="false" aria-label="填滿工具">
-                            <i class="fa-solid fa-fill-drip" aria-hidden="false"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="形狀工具" class="btn btn-tool" data-selected="false" aria-label="形狀工具">
-                            <i class="fa-solid fa-draw-polygon" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="文字工具" class="btn btn-tool" data-selected="false" aria-label="文字工具">
-                            <i class="fa-solid fa-i-cursor" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" title="縮放顯示工具" class="btn btn-tool" data-selected="false" aria-label="縮放顯示工具">
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        </button>
-                    </li>                   
+            <div id="canvas-tools" class="panel grid auto-rows-min justify-items-center gap-4 p-1 md:p-2">
+                <ul id="canvas-tool-list" class="grid grid-cols-1 md:grid-cols-2 auto-rows-min gap-1 min-w-max">
+                    <!-- ? Injected by canvasState.insertToolElements() -->
                 </ul>
                 <div>
-
+                    <div class="grid grid-stack isolate">
+                        <button id="main-color-button" type="button" class="color-grid fill-color -translate-x-1/4 -translate-y-1/4 z-1" data-color-property="fillColor"></button>
+                        <button id="stroke-color-button" type="button" class="color-grid stroke-color translate-x-1/4 translate-y-1/4" data-color-property="strokeColor"></button>
+                    </div>
                 </div>
             </div>
 
             <!-- Main Canvas -->
             <div id="canvas-area" class="grid p-16 overflow-scroll" tabindex="-1">
                 <div class="canvas-container place-self-center" tabindex="-1">
-                    <canvas id="canvas" width="800" height="800"></canvas>
+                    <canvas id="main-canvas" width="800" height="800"></canvas>
                 </div>
             </div>
 
             <!-- Right Siderbar -->
-            <div class="panel w-[clamp(12rem,_30vw,_20rem)]">
-                <div class="p-4">
-                    <div class="w-full aspect-square bg-white"></div>
+            <div class="panel w-[clamp(12rem,_30vw,_20rem)] p-4">
+                <div id="color-picker" class="color-picker grid gap-2" data-mode="HSB">
+                    <div class="flex gap-4">
+                        <div id="color-picker-area" class="picker-area" style="background-color: hsl(0, 100%, 50%);">
+                            <div id="color-picker-caret" class="picker-caret" style="left:0; top: 100%;"></div>
+                        </div>
+                        <div id="hue-picker" class="hue-picker">
+                            <div id="hue-picker-caret" class="hue-picker-caret" style="left: 0;">
+                                <i class="fa-solid fa-caret-right" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <fieldset id="picker-mode-fieldset" class="flex justify-end gap-2 text-sm">
+                        <!-- ? Injected by canvasState.insertPickerModeElements() -->
+                    </fieldset>
                 </div>
             </div>
         </main>
 
         <!-- Scripts -->
-        <script src="./assets/js/script.js"></script>
+        <script type="module" src="./assets/js/script.js"></script>
     </body>
 </html>
