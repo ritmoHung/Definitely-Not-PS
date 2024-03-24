@@ -64,8 +64,7 @@ First implementation of UI. State/icon/value changes are done by separate event 
     TBD
 
 ## Web Page Link
-
-    [GitHub Pages](https://ritmohung.github.io/SS-AS1/)
+[GitHub Pages](https://ritmohung.github.io/SS-AS1/)
 
 ## Others (Optional)
 
