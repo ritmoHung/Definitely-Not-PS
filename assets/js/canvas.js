@@ -106,6 +106,13 @@ export default class Canvas {
         this.pathX = 0;
         this.pathY = 0;
 
+        this.canvas.addEventListener("touchstart", (e) => {
+            this.isPainting = true;
+            this.pathX = e.offsetX;
+            this.pathY = e.offsetY;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.pathX, this.pathY);
+        });
         this.canvas.addEventListener("mousedown", (e) => {
             this.isPainting = true;
             this.pathX = e.offsetX;
@@ -114,8 +121,13 @@ export default class Canvas {
             this.ctx.moveTo(this.pathX, this.pathY);
         });
 
+        this.canvas.addEventListener("touchmove", (e) => this.draw(e));
         this.canvas.addEventListener("mousemove", (e) => this.draw(e));
 
+        this.canvas.addEventListener("touchend", () => {
+            this.isPainting = false;
+            this.ctx.beginPath();
+        });
         this.canvas.addEventListener("mouseup", () => {
             this.isPainting = false;
             this.ctx.beginPath();
