@@ -1,6 +1,6 @@
-import CanvasState from "./canvasState.js";
+import AppState from "./appState.js";
 
-const canvasState = new CanvasState();
+const canvasState = new AppState();
 
 
 
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateShape(selectedShape);
 });
 
-// # BASIC OPERATIONS
+// # Basic operations
 document.addEventListener("DOMContentLoaded", () => {
     const UndoButton = document.getElementById("undo-button");
     const RedoButton = document.getElementById("redo-button");
@@ -68,6 +68,37 @@ function handleExport() {
 
 function handleColorSwap() {
     canvasState.swapColors();
+}
+
+// # Right sidebar toggle button
+document.addEventListener("DOMContentLoaded", () => {
+    const rsbToggleButton = document.getElementById("rsb-toggle-button");
+    const mq = window.matchMedia("(min-width: 768px)");
+
+    // Set state on resize
+    window.addEventListener("resize", () => {
+        if (!mq.matches && rsbToggleButton.getAttribute("aria-expanded") === "true") {
+            setRightSidebarState(false);
+        }
+    });
+
+    // Toggle state on click
+    rsbToggleButton.addEventListener("click", () => {
+        const state = rsbToggleButton.getAttribute("aria-expanded") === "true";
+        setRightSidebarState(!state);
+    });
+
+    // Initialization
+    setRightSidebarState(mq.matches);
+})
+
+function setRightSidebarState(state) {
+    const rsbToggleButton = document.getElementById("rsb-toggle-button");
+    const rightSidebar = document.getElementById("right-sidebar");
+
+    rsbToggleButton.setAttribute("aria-expanded", String(state));
+    if (state) rightSidebar.classList.remove("!hidden");
+    else rightSidebar.classList.add("!hidden");
 }
 
 

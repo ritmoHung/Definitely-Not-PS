@@ -30,30 +30,34 @@ const BRUSH_SHAPES = [
 
 
 export default class Canvas {
-    constructor(canvasId) {
+    constructor(canvasId, appStateRef) {
         // # Elements
         // The canvas by ID
-        const canvas = document.getElementById(canvasId);
-        this.ctx = canvas.getContext("2d");
+        this.mainCanvas = document.getElementById(canvasId);
+        this.previewCanvas = document.getElementById("prev-canvas");
+        this.mainCtx = this.mainCanvas.getContext("2d");
+        this.previewCtx = this.previewCanvas.getContext("2d");
+        this.canvasArea = document.getElementById("canvas-area");
+        this.appStateRef = appStateRef;
 
         // # Initialization
         // Canvas
         this.reset();
 
         // # Settings
-        this.tools = {
-            "hand-tool": new CanvasTools.HandTool(canvas, this.ctx),
-            "eyedropper-tool": new CanvasTools.EyeDropperTool(canvas, this.ctx),
-            "brush-tool": new CanvasTools.BrushTool(canvas, this.ctx),
-            "eraser-tool": new CanvasTools.EraserTool(canvas, this.ctx),
-            "fill-tool": new CanvasTools.FillTool(canvas, this.ctx),
-            "shape-tool": new CanvasTools.ShapeTool(canvas, this.ctx),
-            "text-tool": new CanvasTools.TextTool(canvas, this.ctx),
-            "zoom-tool": new CanvasTools.ZoomTool(canvas, this.ctx),
+        this.tools = {  
+            "hand-tool": new CanvasTools.HandTool(this),
+            "eyedropper-tool": new CanvasTools.EyeDropperTool(this, this.appStateRef),
+            "brush-tool": new CanvasTools.BrushTool(this),
+            "eraser-tool": new CanvasTools.EraserTool(this),
+            "fill-tool": new CanvasTools.FillTool(this),
+            "shape-tool": new CanvasTools.ShapeTool(this),
+            "text-tool": new CanvasTools.TextTool(this),
+            "zoom-tool": new CanvasTools.ZoomTool(this),
         };
         this.currentTool = Object.keys(this.tools)[2];  // ? "brush-tool"
         this.brushShape = BRUSH_SHAPES.find(shape => shape.isSelected).value;
-        this.ctx.lineWidth = 5;
+        this.mainCtx.lineWidth = 5;
 
         this.initToolElements();
         this.initBrushShapeElements();
@@ -116,7 +120,7 @@ export default class Canvas {
         const BrushShapeSelect = document.getElementById("brush-size-input");
         BrushShapeSelect.addEventListener("input", (e) => this.setBrushSize(e.target.value));
 
-        this.setBrushSize(this.ctx.lineWidth);
+        this.setBrushSize(this.mainCtx.lineWidth);
     }
 
     // # SET functions
@@ -138,16 +142,26 @@ export default class Canvas {
         const shapeObject = BRUSH_SHAPES.find(shape => shape.value === selectedShape);
 
         this.brushShape = selectedShape;
-        this.ctx.lineCap = shapeObject.lineCap;
-        this.ctx.lineJoin = shapeObject.lineJoin;
+        this.mainCtx.lineCap = shapeObject.lineCap;
+        this.mainCtx.lineJoin = shapeObject.lineJoin;
         this.updateBrushIcon(shapeObject);
 
         console.log(`Brush shape set to ${selectedShape}`);
     }
 
     setBrushSize(selectedSize) {
-        this.ctx.lineWidth = selectedSize;
+        this.mainCtx.lineWidth = selectedSize;
         this.updateBrushSizeText(selectedSize);
+    }
+
+    setFillColor(color) {
+        this.mainCtx.fillStyle = color;
+        this.previewCtx.fillStyle = color;
+    }
+
+    setStrokeColor(color) {
+        this.mainCtx.strokeStyle = color;
+        this.previewCtx.strokeStyle = color;
     }
 
     // # UI updates
@@ -180,16 +194,18 @@ export default class Canvas {
 
     // #
     reset() {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        const tempColor = this.mainCtx.fillStyle;
+        this.mainCtx.clearRect(0, 0, this.mainCtx.canvas.width, this.mainCtx.canvas.height);
+        this.mainCtx.fillStyle = "white";
+        this.mainCtx.fillRect(0, 0, this.mainCtx.canvas.width, this.mainCtx.canvas.height);
+        this.mainCtx.fillStyle = tempColor;
 
         console.log("Canvas reset");
     }
 
     export() {
         const a = document.createElement("a");
-        a.href = canvas.toDataURL("image/jpeg");
+        a.href = this.mainCanvas.toDataURL("image/jpeg");
         a.download = "image.jpg";
         a.click();
     }

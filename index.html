@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta property="og:title" content="白瀬あおい二周年記念ウェブ">
+        <meta property="og:title" content="Web Canvas">
         <meta property="og:image" content="https://i.imgur.com/AkEaWbq_d.webp?maxwidth=760&fidelity=grand">
         <meta property="og:description" content="Software Studio Assignment 1 - Web Canvas">
         <title>Web Canvas</title>
@@ -23,13 +23,13 @@
     <!-- BODY -->
     <body class="grid grid-rows-[auto_1fr] h-svh">
         <!-- Header -->
-        <header class="panel grid grid-cols-[auto_1fr] items-center px-2 w-screen shadow-xl z-10">
+        <header class="panel grid grid-cols-[auto_1fr_auto] items-center px-2 w-screen shadow-xl z-10">
             <div class="w-7 mx-2 aspect-square">
                 <img src="./assets/favicon.ico" alt="Logo" class="object-contain">
             </div>
             <div class="flex items-center p-2">
                 <!-- Basic Operations -->
-                <ul class="self-stretch tool-group [&_button]:h-full">
+                <ul class="self-stretch tool-group !flex [&_button]:h-full" data-direction="col">
                     <li>
                         <button id="undo-button" type="button" title="還原" class="btn" aria-label="還原">
                             <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
@@ -63,7 +63,7 @@
                 </ul>
 
                 <!-- Draw Tool Extensions -->
-                <ul class="tool-group">
+                <ul class="tool-group" data-direction="col">
                     <li class="test-li">
                         <button type="button" title="筆刷設定" class="btn btn-sizing" aria-label="筆刷設定">
                             <i id="brush-shape-icon" class="fa-solid" aria-hidden="true"></i>
@@ -109,7 +109,7 @@
                 </ul>
 
                 <!-- Shape Tool Extensions -->
-                <ul class="tool-group">
+                <ul class="tool-group" data-direction="col">
                     <li class="test-li">
                         <button type="button" title="形狀設定" class="btn btn-sizing" aria-label="形狀設定">
                             <i id="shape-icon" class="fa-regular" aria-hidden="true"></i>
@@ -135,7 +135,7 @@
                 </ul>
 
                 <!-- Text Tool Extensions -->
-                <ul class="tool-group">
+                <ul class="tool-group" data-direction="col">
                     <li class="test-li">
                         <button type="button" title="文字尺寸" class="btn btn-sizing" aria-label="文字尺寸">
                             <i id="brush-shape-icon" class="fa-solid fa-font" aria-hidden="true"></i>
@@ -165,11 +165,15 @@
                     </li>
                 </ul>
             </div>
+            <button id="rsb-toggle-button" type="button" title="右側選單" class="btn !p-2 aspect-square"
+                    aria-controls="right-sidebar" aria-expanded="true">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </header>
 
         <!-- Main -->
         <main class="grid grid-cols-[auto_1fr_auto] overflow-hidden">
-            <!-- Left Siderbar -->
+            <!-- # Left Siderbar -->
             <div id="canvas-tools" class="panel grid auto-rows-min justify-items-center gap-4 p-1 md:p-2">
                 <ul id="canvas-tool-list" class="grid grid-cols-1 md:grid-cols-2 auto-rows-min gap-1 min-w-max">
                     <!-- ? Appended by insertToolElements() -->
@@ -185,15 +189,16 @@
                 </div>
             </div>
 
-            <!-- Main Canvas -->
+            <!-- # Main Canvas -->
             <div id="canvas-area" class="grid p-16 overflow-scroll" tabindex="-1">
-                <div class="canvas-container place-self-center" tabindex="-1">
-                    <canvas id="main-canvas" width="800" height="800"></canvas>
+                <div class="canvas-container place-self-center grid grid-stack" tabindex="-1">
+                    <canvas id="prev-canvas" class="z-2 pointer-events-none" width="800" height="800"></canvas>
+                    <canvas id="main-canvas" class="z-1" width="800" height="800"></canvas>
                 </div>
             </div>
 
-            <!-- Right Siderbar -->
-            <div class="panel w-[clamp(12rem,_30vw,_20rem)] p-4">
+            <!-- # Right Siderbar -->
+            <div id="right-sidebar" class="panel w-[clamp(12rem,_30vw,_20rem)] p-4">
                 <div id="color-picker" class="color-picker grid gap-2" data-mode="HSB">
                     <div class="flex gap-4">
                         <div id="color-picker-area" class="picker-area" style="background-color: hsl(0, 100%, 50%);">

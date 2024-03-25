@@ -102,14 +102,26 @@ p {
 }
 
 .canvas-container {
-    @apply shadow-lg shadow-neutral-700;
+    @apply shadow-lg shadow-neutral-700 isolate;
 }
 
 .tool-group {
-    @apply flex items-center gap-2 px-2;
+    @apply gap-2 px-2 border-neutral-500;
 
-    &:not(:last-child) {
-        @apply border-neutral-500 border-r-1;
+    &:is([data-direction="col"]) {
+        @apply flex items-center;
+
+        &:not(:last-child) {
+            @apply border-r-1;
+        }
+    }
+
+    &:is([data-direction="row"]) {
+        @apply grid justify-items-stretch;
+
+        &:not(:last-child) {
+            @apply border-b-1;
+        }
     }
 }
 
@@ -301,10 +313,6 @@ fieldset label {
     &::-webkit-scrollbar-corner {
         border-radius: calc(0.6 * var(--scrollbar-width));
     }
-}
-
-.tool-group-container {
-    --scrollbar-width: 1rem;
 }
 
 #canvas-area {

@@ -14,7 +14,7 @@ const colorPickerModes = [
 
 
 
-export default class CanvasState {
+export default class AppState {
     constructor() {
         // # Elements
         // The color picker
@@ -27,7 +27,7 @@ export default class CanvasState {
         // The <fieldset> that should contain all picker modes
         this.PickerModeFieldset = document.getElementById("picker-mode-fieldset");
         // Main canvas
-        this.MainCanvas = new Canvas("main-canvas");
+        this.MainCanvas = new Canvas("main-canvas", this);
 
         // # Settings
         this.colorPickerMode = "HSB";
@@ -86,15 +86,15 @@ export default class CanvasState {
         console.log(`Color picker mode set to ${mode}`);
     }
 
-    setColor(colorProperty = this.selectedColorProperty, { h, s, l }) {
+    setColor(colorProperty, { h, s, l }) {
         // Update color by name
         this[colorProperty].update({ h, s, l });
-        switch (this.selectedColorProperty) {
+        switch (colorProperty) {
             case "fillColor":
-                this.MainCanvas.ctx.fillStyle = this[colorProperty].toString();
+                this.MainCanvas.setFillColor(this[colorProperty].toString())
                 break;
             case "strokeColor":
-                this.MainCanvas.ctx.strokeStyle = this[colorProperty].toString();
+                this.MainCanvas.setStrokeColor(this[colorProperty].toString())
                 break;
         }
         
