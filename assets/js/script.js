@@ -33,12 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const DiscardButton = document.getElementById("discard-button");
     const ImportButton = document.getElementById("import-button");
     const ExportButton = document.getElementById("export-button");
+    const ColorSwapButton = document.getElementById("color-swap-button");
 
     UndoButton.onclick = () => handleUndo();
     RedoButton.onclick = () => handleRedo();
     DiscardButton.onclick = () => handleDiscard();
     ImportButton.onclick = () => handleImport();
     ExportButton.onclick = () => handleExport();
+    ColorSwapButton.onclick = () => handleColorSwap();
 });
 
 function handleUndo() {
@@ -62,6 +64,10 @@ function handleImport() {
 
 function handleExport() {
     canvasState.MainCanvas.export();
+}
+
+function handleColorSwap() {
+    canvasState.swapColors();
 }
 
 

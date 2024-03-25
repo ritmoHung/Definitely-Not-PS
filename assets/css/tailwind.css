@@ -256,7 +256,7 @@ fieldset label {
     }
 }
 
-.btn-tool {
+.btn-canvas-tool {
     @apply w-10 p-1 aspect-square border-transparent;
 
     &:hover, &:active, &[data-selected="true"] {

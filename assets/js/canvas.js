@@ -1,61 +1,4 @@
-const CANVAS_TOOLS = [
-    {
-        id: "hand-tool",
-        name: "手形工具",
-        isSelected: false,
-        icon: "fa-hand",
-        key: "h",
-    },
-    {
-        id: "eyedropper-tool",
-        name: "滴管工具",
-        isSelected: false,
-        icon: "fa-eye-dropper",
-        key: "i",
-    },
-    {
-        id: "brush-tool",
-        name: "筆刷工具",
-        isSelected: true,
-        icon: "fa-paintbrush",
-        key: "b",
-    },
-    {
-        id: "eraser-tool",
-        name: "橡皮擦工具",
-        isSelected: false,
-        icon: "fa-eraser",
-        key: "e",
-    },
-    {
-        id: "fill-tool",
-        name: "填滿工具",
-        isSelected: false,
-        icon: "fa-fill-drip",
-        key: "f",
-    },
-    {
-        id: "shape-tool",
-        name: "形狀工具",
-        isSelected: false,
-        icon: "fa-draw-polygon",
-        key: "u",
-    },
-    {
-        id: "text-tool",
-        name: "文字工具",
-        isSelected: false,
-        icon: "fa-i-cursor",
-        key: "t",
-    },
-    {
-        id: "zoom-tool",
-        name: "縮放顯示工具",
-        isSelected: false,
-        icon: "fa-magnifying-glass",
-        key: "z",
-    },
-];
+import * as CanvasTools from "./canvasTool.js";
 
 const BRUSH_SHAPES = [
     {
@@ -71,7 +14,7 @@ const BRUSH_SHAPES = [
         value: "square",
         icon: "fa-square",
         isSelected: false,
-        lineCap: "butt",
+        lineCap: "square",
         lineJoin: "mitter",
     },
     {
@@ -90,48 +33,27 @@ export default class Canvas {
     constructor(canvasId) {
         // # Elements
         // The canvas by ID
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext("2d");
+        const canvas = document.getElementById(canvasId);
+        this.ctx = canvas.getContext("2d");
 
         // # Initialization
         // Canvas
         this.reset();
 
         // # Settings
-        this.selectedTool = CANVAS_TOOLS.find(tool => tool.isSelected).id;
+        this.tools = {
+            "hand-tool": new CanvasTools.HandTool(canvas, this.ctx),
+            "eyedropper-tool": new CanvasTools.EyeDropperTool(canvas, this.ctx),
+            "brush-tool": new CanvasTools.BrushTool(canvas, this.ctx),
+            "eraser-tool": new CanvasTools.EraserTool(canvas, this.ctx),
+            "fill-tool": new CanvasTools.FillTool(canvas, this.ctx),
+            "shape-tool": new CanvasTools.ShapeTool(canvas, this.ctx),
+            "text-tool": new CanvasTools.TextTool(canvas, this.ctx),
+            "zoom-tool": new CanvasTools.ZoomTool(canvas, this.ctx),
+        };
+        this.currentTool = Object.keys(this.tools)[2];  // ? "brush-tool"
         this.brushShape = BRUSH_SHAPES.find(shape => shape.isSelected).value;
         this.ctx.lineWidth = 5;
-        this.TOLERANCE = 5;
-        this.isPainting = false;
-        this.pathX = 0;
-        this.pathY = 0;
-
-        this.canvas.addEventListener("touchstart", (e) => {
-            this.isPainting = true;
-            this.pathX = e.offsetX;
-            this.pathY = e.offsetY;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.pathX, this.pathY);
-        });
-        this.canvas.addEventListener("mousedown", (e) => {
-            this.isPainting = true;
-            this.pathX = e.offsetX;
-            this.pathY = e.offsetY;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.pathX, this.pathY);
-        });
-
-        this.canvas.addEventListener("touchmove", (e) => this.draw(e));
-        this.canvas.addEventListener("mousemove", (e) => this.draw(e));
-
-        this.canvas.addEventListener("touchend", () => {
-            this.isPainting = false;
-            this.ctx.beginPath();
-        });
-        this.canvas.addEventListener("mouseup", () => {
-            this.isPainting = false;
-            this.ctx.beginPath();
-        });
 
         this.initToolElements();
         this.initBrushShapeElements();
@@ -141,20 +63,20 @@ export default class Canvas {
     // # Component injection
     initToolElements() {
         const CanvasToolList = document.getElementById("canvas-tool-list");
-        CANVAS_TOOLS.forEach(tool => {
+        Object.values(this.tools).forEach(tool => {
             const li = document.createElement("li");
 
             const button = document.createElement("button");
             button.id = tool.id;
             button.type = "button";
             button.title = tool.name;
-            button.className = "btn btn-tool";
-            button.setAttribute("data-selected", tool.isSelected);
+            button.className = "btn btn-canvas-tool";
+            button.setAttribute("data-selected", false);
             button.setAttribute("aria-label", tool.name);
-            button.addEventListener("click", () => this.setSelectedTool(button, CanvasToolList));
+            button.addEventListener("click", () => this.setCurrentTool(tool.id));
 
             const i = document.createElement("i");
-            i.className = `fa-solid ${tool.icon}`;
+            i.className = tool.iconClass;
             i.setAttribute("aria-hidden", "true");
 
             button.appendChild(i);
@@ -162,13 +84,17 @@ export default class Canvas {
             CanvasToolList.appendChild(li);
         });
 
+        // Handle keydown for tool switch
         document.addEventListener("keydown", (e) => {
-            const tool = CANVAS_TOOLS.find(tool => tool.key === e.key);
-            if (tool) {
-                const button = document.getElementById(tool.id);
-                if (button) this.setSelectedTool(button, CanvasToolList);
+            const toolEntry = Object.entries(this.tools).find(([id, tool]) => tool.key === e.key);
+            if (toolEntry) {
+                const [toolId] = toolEntry;
+                this.setCurrentTool(toolId);
             }
         });
+
+        // Initialize
+        this.setCurrentTool(this.currentTool);
     }
 
     initBrushShapeElements() {
@@ -194,17 +120,18 @@ export default class Canvas {
     }
 
     // # SET functions
-    setSelectedTool(selectedButton, CanvasToolList) {
-        this.selectedTool = selectedButton.id;
+    setCurrentTool(toolId) {
+        // Deactivate previous tool
+        if (this.currentTool) this.tools[this.currentTool].deactivate();
 
-        const toolButtons = CanvasToolList.querySelectorAll(".btn-tool");
-        toolButtons.forEach(button => {
-            button.setAttribute("data-selected", "false");
-        });
-        selectedButton.setAttribute("data-selected", "true");
-        selectedButton.focus();
+        // Activate current tool
+        this.currentTool = toolId;
+        this.tools[toolId].activate();
 
-        console.log(`Switch to ${selectedButton.getAttribute("aria-label")}`);
+        // Update UI
+        this.updateCurrentToolButton(toolId)
+
+        console.log(`Switch to ${this.tools[toolId].name}`);
     }
 
     setBrushShape(selectedShape) {
@@ -224,6 +151,15 @@ export default class Canvas {
     }
 
     // # UI updates
+    updateCurrentToolButton(toolId) {
+        document.querySelectorAll(".btn-canvas-tool").forEach(button => {
+            button.setAttribute("data-selected", "false");
+        });
+        const currentButton = document.getElementById(toolId);
+        currentButton.setAttribute("data-selected", "true");
+        currentButton.focus();
+    }
+
     updateBrushIcon(shapeObject) {
         const BrushShapeIcon = document.getElementById("brush-shape-icon");
         BRUSH_SHAPES.forEach(shape => {
@@ -243,22 +179,6 @@ export default class Canvas {
     }
 
     // #
-    draw(e) {
-        if (!this.isPainting) return;
-
-        const x = e.offsetX;
-        const y = e.offsetY;
-        const dx = Math.abs(x - this.pathX);
-        const dy = Math.abs(y - this.pathY);
-
-        if (dx >= this.TOLERANCE || dy >= this.TOLERANCE) {
-            this.ctx.quadraticCurveTo(this.pathX, this.pathY, (x + this.pathX) / 2, (y + this.pathY) / 2);
-            this.pathX = x;
-            this.pathY = y;
-            this.ctx.stroke();
-        }
-    }
-
     reset() {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.fillStyle = "white";
@@ -269,7 +189,7 @@ export default class Canvas {
 
     export() {
         const a = document.createElement("a");
-        a.href = this.canvas.toDataURL("image/jpeg");
+        a.href = canvas.toDataURL("image/jpeg");
         a.download = "image.jpg";
         a.click();
     }

@@ -31,7 +31,7 @@ export default class CanvasState {
 
         // # Settings
         this.colorPickerMode = "HSB";
-        this.selectedColorProperty = "fillColor";
+        this.selectedColorProperty = "strokeColor";
         this.fillColor = new ColorHSL(0, 0, 100);
         this.strokeColor = new ColorHSL(0, 0, 0);
         this.setColor("fillColor", { h: 0, s: 0, l: 100 });
@@ -86,7 +86,7 @@ export default class CanvasState {
         console.log(`Color picker mode set to ${mode}`);
     }
 
-    setColor(colorProperty, { h, s, l }) {
+    setColor(colorProperty = this.selectedColorProperty, { h, s, l }) {
         // Update color by name
         this[colorProperty].update({ h, s, l });
         switch (this.selectedColorProperty) {
@@ -100,7 +100,7 @@ export default class CanvasState {
         
         // Update UI
         this.updateColorUI(colorProperty);
-        console.log(`${colorProperty} set to ${this[colorProperty].toString()}`);
+        // console.log(`${colorProperty} set to ${this[colorProperty].toString()}`); // ? Too noisy
     }
 
     setColorByPercentages(colorProperty, satPercent, valPercent) {
@@ -127,6 +127,13 @@ export default class CanvasState {
         this.setColor(colorProperty, { s, l });
     }
 
+    swapColors() {
+        const tempColor = new ColorHSL();
+        tempColor.update(this.fillColor.get());
+        this.setColor("fillColor", this.strokeColor.get());
+        this.setColor("strokeColor", tempColor.get());
+    }
+
     setSelectedColorProperty(colorProperty) {
         if (colorProperty === "fillColor" || colorProperty === "strokeColor") {
             this.selectedColorProperty = colorProperty;
@@ -144,6 +151,10 @@ class ColorHSL {
         this.h = h;
         this.s = s;
         this.l = l;
+    }
+
+    get() {
+        return { h: this.h, s: this.s, l: this.l };
     }
 
     update({ h = this.h, s = this.s, l = this.l } = {}) {
