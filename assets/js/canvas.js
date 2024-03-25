@@ -43,6 +43,9 @@ export default class Canvas {
         // # Initialization
         // Canvas
         this.reset();
+        this.canvasArea.addEventListener("touchstart", (e) => e.preventDefault());
+        this.canvasArea.addEventListener("touchmove", (e) => e.preventDefault());
+        this.canvasArea.addEventListener("touchend", (e) => e.preventDefault());
 
         // # Settings
         this.tools = {  
