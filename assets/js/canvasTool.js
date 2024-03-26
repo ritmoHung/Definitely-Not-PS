@@ -24,7 +24,7 @@ export class HandTool extends CanvasTool {
             name: "手形工具",
             iconClass: "fa-solid fa-hand",
             key: "h",
-        })
+        });
     }
 
     activate() {
@@ -43,12 +43,12 @@ export class EyeDropperTool extends CanvasTool {
             name: "滴管工具",
             iconClass: "fa-solid fa-eye-dropper",
             key: "i",
-        })
+        });
         this.appStateRef = appStateRef;
     }
 
     activate() {
-        this.canvasRef.canvasArea.style.cursor = 'url("./assets/cursors/fa-solid-eye-dropper.svg")';
+        // TODO
     }
 
     deactivate() {
@@ -56,19 +56,18 @@ export class EyeDropperTool extends CanvasTool {
     }
 }
 
-export class BrushTool extends CanvasTool {
-    constructor(canvasRef) {
-        super(canvasRef, {
-            id: "brush-tool",
-            name: "筆刷工具",
-            iconClass: "fa-solid fa-paintbrush",
-            key: "b",
-        })
+class DrawingTool extends CanvasTool {
+    constructor(canvasRef, toolConfig) {
+        super(canvasRef, toolConfig);
 
-        this.TOLERANCE = 5;
-        this.isPainting = false;
-        this.pathX = 0;
-        this.pathY = 0;
+        this.compositeOperation = toolConfig.compositeOperation ? toolConfig.compositeOperation : "";
+        this.isDrawing = false;
+        this.tolerance = 5;
+        this.stampDensity = 2;
+        this.drawShape = toolConfig.drawShape ? toolConfig.drawShape : "circle";
+        this.drawSize = toolConfig.drawSize ? toolConfig.drawSize : 5;
+        this.prevX = 0;
+        this.prevY = 0;
 
         // ? Let functions be referenceable when removing event listeners
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -77,7 +76,9 @@ export class BrushTool extends CanvasTool {
     }
 
     activate() {
-        this.canvasRef.canvasArea.style.cursor = 'url("./assets/cursors/fa-solid-paintbrush.svg")';
+        if (this.compositeOperation) {
+            this.canvasRef.mainCtx.globalCompositeOperation = this.compositeOperation;
+        }
 
         this.canvasRef.mainCanvas.addEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.addEventListener("mousemove", this.handleMouseMove);
@@ -85,6 +86,10 @@ export class BrushTool extends CanvasTool {
     }
 
     deactivate() {
+        if (this.compositeOperation && this.compositeOperation !== "source-over") {
+            this.canvasRef.mainCtx.globalCompositeOperation = "source-over";
+        }
+
         this.canvasRef.mainCanvas.removeEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.removeEventListener("mousemove", this.handleMouseMove);
         this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
@@ -92,55 +97,116 @@ export class BrushTool extends CanvasTool {
 
     // # Functionality
     handleMouseDown(e) {
-        this.isPainting = true;
-        this.pathX = e.offsetX;
-        this.pathY = e.offsetY;
+        this.isDrawing = true;
+        this.prevX = e.offsetX;
+        this.prevY = e.offsetY;
         this.canvasRef.mainCtx.beginPath();
-        this.canvasRef.mainCtx.moveTo(this.pathX, this.pathY);
+        this.canvasRef.mainCtx.moveTo(this.prevX, this.prevY);
     }
 
     handleMouseMove(e) {
-        this.draw(e);
-    }
+        if (!this.isDrawing) return;
 
-    handleMouseUp(e) {
-        this.isPainting = false;
-        this.canvasRef.mainCtx.beginPath();
-    }
+        // ? Legacy: Draw strokes
+        // const x = e.offsetX;
+        // const y = e.offsetY;
+        // const dx = Math.abs(x - this.prevX);
+        // const dy = Math.abs(y - this.prevY);
 
-    draw(e) {
-        if (!this.isPainting) return;
+        // if (dx >= this.tolerance || dy >= this.tolerance) {
+        //     this.canvasRef.mainCtx.quadraticCurveTo(this.prevX, this.prevY, (x + this.prevX) / 2, (y + this.prevY) / 2);
+        //     this.prevX = x;
+        //     this.prevY = y;
+        //     this.canvasRef.mainCtx.stroke();
+        // }
 
         const x = e.offsetX;
         const y = e.offsetY;
-        const dx = Math.abs(x - this.pathX);
-        const dy = Math.abs(y - this.pathY);
+        const dx = x - this.prevX;
+        const dy = y - this.prevY;
 
-        if (dx >= this.TOLERANCE || dy >= this.TOLERANCE) {
-            this.canvasRef.mainCtx.quadraticCurveTo(this.pathX, this.pathY, (x + this.pathX) / 2, (y + this.pathY) / 2);
-            this.pathX = x;
-            this.pathY = y;
-            this.canvasRef.mainCtx.stroke();
+        if (Math.abs(dx) >= this.tolerance || Math.abs(dy) >= this.tolerance) {
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const stamps = Math.max(1, distance * this.stampDensity);
+
+            for (let i = 1; i <= stamps; i++) {
+                const stampX = this.prevX + (dx * i) / stamps;
+                const stampY = this.prevY + (dy * i) / stamps;
+
+                this.canvasRef.mainCtx.beginPath();
+                switch (this.drawShape) {
+                    case "circle":
+                        this.canvasRef.mainCtx.arc(stampX, stampY, this.drawSize / 2, 0, Math.PI * 2);
+                        break;
+                    case "square":
+                        this.canvasRef.mainCtx.rect(stampX - this.drawSize / 2, stampY - this.drawSize / 2, this.drawSize, this.drawSize);
+                        break;
+                    case "triangle":
+                        const r = this.drawSize / 2;
+                        const s = Math.sqrt(3) * r;
+                        const h = Math.sqrt(3) / 2 * s;
+
+                        const A = { x: stampX - s / 2, y: stampY + h / 3 };
+                        const B = { x: stampX + s / 2, y: stampY + h / 3 };
+                        const C = { x: stampX, y: stampY - 2 * h / 3 };
+
+                        this.canvasRef.mainCtx.moveTo(A.x, A.y);
+                        this.canvasRef.mainCtx.lineTo(B.x, B.y);
+                        this.canvasRef.mainCtx.lineTo(C.x, C.y);
+                        this.canvasRef.mainCtx.closePath();
+                        break;
+                    case "image":
+                        break;
+                    default:
+                        break;
+                }
+                this.canvasRef.mainCtx.fill();
+            }
+
+            this.prevX = x;
+            this.prevY = y;
         }
+    }
+
+    handleMouseUp() {
+        this.isDrawing = false;
+        this.canvasRef.mainCtx.beginPath();
+    }
+
+    setDrawShape(shape) {
+        this.drawShape = shape;
+    }
+
+    setDrawSize(size) {
+        this.drawSize = size;
     }
 }
 
-export class EraserTool extends CanvasTool {
-    constructor(canvasRef) {
+export class BrushTool extends DrawingTool {
+    constructor(canvasRef, drawSize, drawShape) {
+        super(canvasRef, {
+            id: "brush-tool",
+            name: "筆刷工具",
+            iconClass: "fa-solid fa-paintbrush",
+            key: "b",
+            compositeOperation: "source-over",
+            drawSize,
+            drawShape,
+        });
+    }
+}
+
+export class EraserTool extends DrawingTool {
+    constructor(canvasRef, drawSize, drawShape) {
         super(canvasRef, {
             id: "eraser-tool",
             name: "橡皮擦工具",
             iconClass: "fa-solid fa-eraser",
             key: "e",
-        })
-    }
-
-    activate() {
-        // TODO
-    }
-
-    deactivate() {
-        // TODO
+            compositeOperation: "destination-out",
+            drawSize,
+            drawShape,
+        });
     }
 }
 
@@ -151,7 +217,7 @@ export class FillTool extends CanvasTool {
             name: "填滿工具",
             iconClass: "fa-solid fa-fill-drip",
             key: "f",
-        })
+        });
 
         // ? Let functions be referenceable when removing event listeners
         this.handleClick = this.handleClick.bind(this);
@@ -181,7 +247,7 @@ export class ShapeTool extends CanvasTool {
             name: "形狀工具",
             iconClass: "fa-solid fa-draw-polygon",
             key: "u",
-        })
+        });
 
         this.isPainting = false;
         this.pathX = 0;
@@ -246,7 +312,7 @@ export class TextTool extends CanvasTool {
             name: "文字工具",
             iconClass: "fa-solid fa-i-cursor",
             key: "t",
-        })
+        });
     }
 
     activate() {
@@ -265,7 +331,7 @@ export class ZoomTool extends CanvasTool {
             name: "縮放顯示工具",
             iconClass: "fa-solid fa-magnifying-glass",
             key: "z",
-        })
+        });
     }
 
     activate() {

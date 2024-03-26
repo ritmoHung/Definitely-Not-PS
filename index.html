@@ -5,9 +5,9 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta property="og:title" content="Web Canvas">
+        <meta property="og:title" content="Software Studio Assignment 1 - Web Canvas">
         <meta property="og:image" content="https://i.imgur.com/AkEaWbq_d.webp?maxwidth=760&fidelity=grand">
-        <meta property="og:description" content="Software Studio Assignment 1 - Web Canvas">
+        <meta property="og:description" content="Definitely not Photoshop">
         <title>Web Canvas</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,11 +54,26 @@
                             <span class="hidden md:block">匯入</span>
                         </button>
                     </li>
-                    <li>
+                    <li class="test-li">
                         <button id="export-button" type="button" title="匯出" class="btn" aria-label="匯出">
                             <i class="fa-solid fa-file-export" aria-hidden="true"></i>
                             <span class="hidden md:block">匯出</span>
                         </button>
+                        <div class="dropdown-container">
+                            <div class="dropdown tile-rounded-outline">
+                                <div class="dropdown-item">
+                                    <h5>匯出格式</h5>
+                                    <select id="export-format" name="export-format" title="匯出格式" class="tile-rounded-outline text-xs">
+                                        <option value="jpeg">JPG</option>
+                                        <option value="png">PNG</option>
+                                    </select>
+                                    <label for="export-bg-trans">
+                                        <input id="export-bg-trans" type="checkbox" >
+                                        <span>透明背景</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                 </ul>
 
@@ -74,7 +89,7 @@
                                 <div class="dropdown-item">
                                     <h5>筆刷形狀</h5>
                                     <select id="brush-shape-select" name="brush-shape" class="tile-rounded-outline text-xs">
-                                        <!-- ? Appended by insertBrushShapeElements() -->
+                                        <!-- ? Appended by initBrushShapeElements() -->
                                     </select>
                                 </div>
                                 <div class="dropdown-item">
@@ -93,15 +108,13 @@
                             <div class="dropdown tile-rounded-outline">
                                 <div class="dropdown-item">
                                     <h5>橡皮擦形狀</h5>
-                                    <select id="eraser-shape-select" name="eraser-shape" class="tile-rounded-outline text-xs" onchange="updateEraserShape(this.value)">
-                                        <option value="circle" selected>圓形</option>
-                                        <option value="square">正方形</option>
-                                        <option value="triangle">三角形</option>
+                                    <select id="eraser-shape-select" name="eraser-shape" class="tile-rounded-outline text-xs">
+                                        <!-- ? Appended by initEraserShapeElements() -->
                                     </select>
                                 </div>
                                 <div class="dropdown-item">
                                     <h5>橡皮擦尺寸</h5>
-                                    <input id="eraser-size" type="range" class="slider" min="1" max="200" value="10" step="1" oninput="updateEraserSize(this.value)" />
+                                    <input id="eraser-size-input" type="range" class="slider" min="1" max="200" value="10" step="1" />
                                 </div>
                             </div>
                         </div>
@@ -180,10 +193,10 @@
                 </ul>
                 <div class="grid justify-center">
                     <div class="grid grid-stack justify-items-center w-full h-6 md:h-10 isolate">
-                        <button id="main-color-button" type="button" class="color-grid fill-color -translate-x-1/3 -translate-y-1/3" data-color-property="fillColor"></button>
-                        <button id="stroke-color-button" type="button" class="color-grid stroke-color translate-x-1/3 translate-y-1/3 z-1" data-color-property="strokeColor"></button>
+                        <button id="main-color-button" type="button" title="切換至前景色" class="color-grid fill-color -translate-x-1/3 -translate-y-1/3 z-1" data-color-property="fillColor"></button>
+                        <button id="stroke-color-button" type="button" title="切換至背景色" class="color-grid stroke-color translate-x-1/3 translate-y-1/3" data-color-property="strokeColor"></button>
                     </div>
-                    <button id="color-swap-button" type="button" class="btn">
+                    <button id="color-swap-button" type="button" title="交換顏色" class="btn">
                         <i class="fa-solid fa-retweet" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -191,9 +204,10 @@
 
             <!-- # Main Canvas -->
             <div id="canvas-area" class="grid p-16 overflow-scroll" tabindex="-1">
-                <div class="canvas-container place-self-center grid grid-stack" tabindex="-1">
-                    <canvas id="prev-canvas" class="z-2 pointer-events-none" width="800" height="800"></canvas>
-                    <canvas id="main-canvas" class="z-1" width="800" height="800"></canvas>
+                <div class="canvas-container place-self-center" tabindex="-1">
+                    <canvas id="prev-canvas" class="z-3 pointer-events-none" width="800" height="800"></canvas>
+                    <canvas id="main-canvas" class="z-2" width="800" height="800"></canvas>
+                    <div class="w-full h-full bg-white z-1"></div>
                 </div>
             </div>
 
@@ -210,7 +224,7 @@
                             </div>
                         </div>
                     </div>
-                    <fieldset id="picker-mode-fieldset" class="flex justify-end gap-2 text-sm">
+                    <fieldset id="picker-mode-fieldset" class="flex justify-end gap-2">
                         <!-- ? Appended by insertPickerModeElements() -->
                     </fieldset>
                 </div>

@@ -1,6 +1,8 @@
 import AppState from "./appState.js";
 
 const canvasState = new AppState();
+let exportFormat = "jpeg";
+let exportWithTransBg = false;
 
 
 
@@ -21,10 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     strokeColorButton.onclick = () => handleClick(strokeColorButton, mainColorButton);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const selectedShape = document.getElementById("shape").value;
-    updateShape(selectedShape);
-});
 
 // # Basic operations
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,13 +32,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const ImportButton = document.getElementById("import-button");
     const ExportButton = document.getElementById("export-button");
     const ColorSwapButton = document.getElementById("color-swap-button");
+    const ExportFormatSelect = document.getElementById("export-format");
+    const ExportBgTrans = document.getElementById("export-bg-trans");
 
     UndoButton.onclick = () => handleUndo();
     RedoButton.onclick = () => handleRedo();
     DiscardButton.onclick = () => handleDiscard();
     ImportButton.onclick = () => handleImport();
-    ExportButton.onclick = () => handleExport();
+    ExportButton.onclick = () => handleExport(exportFormat, exportWithTransBg);
     ColorSwapButton.onclick = () => handleColorSwap();
+
+    ExportFormatSelect.addEventListener("change", (e) => handleExportFormat(e.target.value, ExportBgTrans));
+    ExportBgTrans.addEventListener("change", (e) => handleExportBgTrans(e.target.checked))
+    handleExportFormat(exportFormat, ExportBgTrans);
+    handleExportBgTrans(exportWithTransBg);
 });
 
 function handleUndo() {
@@ -62,12 +67,23 @@ function handleImport() {
     console.log("To be deved");
 }
 
-function handleExport() {
-    canvasState.MainCanvas.export();
+function handleExport(format, withTransBg) {
+    canvasState.MainCanvas.export(format, withTransBg);
 }
 
 function handleColorSwap() {
     canvasState.swapColors();
+}
+
+function handleExportFormat(format, checkbox) {
+    let disabled = format !== "png";
+    exportFormat = format;
+    checkbox.disabled = disabled;
+    checkbox.ariaDisabled = disabled.toString();
+}
+
+function handleExportBgTrans(checked) {
+    exportWithTransBg = checked;
 }
 
 // # Right sidebar toggle button
@@ -199,43 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update on UI resize
     window.addEventListener("resize", () => applyHue());
 });
-
-
-
-/* ------------------------- ERASER ------------------------- */
-const eraserShapes = {
-    circle: "fa-circle",
-    square: "fa-square",
-    triangle: "fa-play",
-};
-
-function updateEraserShape(shape) {
-}
-function updateEraserSize(value) {
-    const eraserSizeText = document.getElementById("eraser-size-text");
-    eraserSizeText.setAttribute("data-value", value);
-}
-
-
-
-/* ------------------------- SHAPES ------------------------- */
-const shapes = {
-    circle: "fa-circle",
-    square: "fa-square-full",
-    triangle: "fa-gem",
-}
-
-function updateShape(shape) {
-    const shapeIcon = document.getElementById("shape-icon");
-    Object.values(shapes).forEach(className => {
-        shapeIcon.classList.remove(className);
-    });
-    shapeIcon.classList.add(`${shapes[shape]}`);
-}
-function updateShapeStrokeSize(value) {
-    const shapeStrokeText = document.getElementById("shape-stroke-text");
-    shapeStrokeText.setAttribute("data-value", value);
-}
 
 
 

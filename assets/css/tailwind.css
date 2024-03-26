@@ -102,7 +102,7 @@ p {
 }
 
 .canvas-container {
-    @apply shadow-lg shadow-neutral-700 isolate;
+    @apply grid grid-stack shadow-lg shadow-neutral-700 isolate;
 }
 
 .tool-group {
@@ -216,6 +216,24 @@ p {
 
 
 /* ---------------------------- STYLES ---------------------------- */
+#main-canvas {
+    &[data-tool-id="brush-tool"] {
+        cursor: url("../cursors/fa-solid-paintbrush.svg") 0 32, auto;
+    }
+
+    &[data-tool-id="eraser-tool"] {
+        cursor: url("../cursors/fa-solid-eraser.svg") 0 32, auto;
+    }
+
+    &[data-tool-id="eyedropper-tool"] {
+        cursor: url("../cursors/fa-solid-eye-dropper.svg") 0 32, auto;
+    }
+
+    &[data-tool-id="fill-tool"] {
+        cursor: url("../cursors/fa-solid-fill-drip.svg") 0 32, auto;
+    }
+}
+
 button, select, input {
     &:focus-visible {
         outline: #A3A3A3 2px solid !important;
@@ -230,13 +248,17 @@ input[type="range"] {
 
 }
 
-fieldset label {
+label {
     --size: 1.3em;
     --inner-size: 0.7em;
-    @apply grid items-center gap-1 cursor-pointer;
+    @apply grid items-center gap-1 text-sm cursor-pointer;
     grid-template-columns: var(--size) auto;
 
-    & input[type="radio"] {
+    &:has(:disabled) {
+        @apply opacity-50;
+    }
+
+    & input[type="checkbox"], & input[type="radio"] {
         @apply appearance-none grid place-items-center place-content-center size-[var(--size)];
         @apply border-neutral-400 border-2 rounded-[0.4rem] cursor-pointer;
 
@@ -249,6 +271,10 @@ fieldset label {
         &:checked::before {
             scale: 1;
         }
+    }
+
+    & span {
+        @apply w-max;
     }
 }
 
