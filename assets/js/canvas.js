@@ -319,9 +319,9 @@ export default class Canvas {
         this.previewCtx.strokeStyle = color;
     }
 
-    reset() {
-        this.mainCtx.clearRect(0, 0, this.mainCtx.canvas.width, this.mainCtx.canvas.height);
-        console.log("Canvas reset");
+    reset(ctx = this.mainCtx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // console.log("Canvas reset");
     }
 
     export(format, withTransBg) {
