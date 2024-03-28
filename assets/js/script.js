@@ -9,7 +9,7 @@ let exportWithTransBg = false;
 /* --------------------- INITIALIZATION --------------------- */
 // # Selected color property switching
 document.addEventListener("DOMContentLoaded", () => {
-    const mainColorButton = document.getElementById("main-color-button");
+    const fillColorButton = document.getElementById("fill-color-button");
     const strokeColorButton = document.getElementById("stroke-color-button");
 
     function handleClick(selected, other) {
@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
         canvasState.setSelectedColorProperty(selected.getAttribute("data-color-property"));
     }
 
-    mainColorButton.onclick = () => handleClick(mainColorButton, strokeColorButton);
-    strokeColorButton.onclick = () => handleClick(strokeColorButton, mainColorButton);
+    fillColorButton.onclick = () => handleClick(fillColorButton, strokeColorButton);
+    strokeColorButton.onclick = () => handleClick(strokeColorButton, fillColorButton);
 });
 
 
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ColorSwapButton.onclick = () => handleColorSwap();
 
     ExportFormatSelect.addEventListener("change", (e) => handleExportFormat(e.target.value, ExportBgTrans));
-    ExportBgTrans.addEventListener("change", (e) => handleExportBgTrans(e.target.checked))
+    ExportBgTrans.addEventListener("change", (e) => handleExportBgTrans(e.target.checked));
     handleExportFormat(exportFormat, ExportBgTrans);
     handleExportBgTrans(exportWithTransBg);
 });

@@ -95,7 +95,7 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
     }
 
-    // # Functionality
+    // # Event Listener
     handleMouseDown(e) {
         this.isDrawing = true;
         this.prevX = e.offsetX;
@@ -106,20 +106,24 @@ class DrawingTool extends CanvasTool {
 
     handleMouseMove(e) {
         if (!this.isDrawing) return;
+        this.draw(e);
+    }
 
-        // ? Legacy: Draw strokes
-        // const x = e.offsetX;
-        // const y = e.offsetY;
-        // const dx = Math.abs(x - this.prevX);
-        // const dy = Math.abs(y - this.prevY);
+    handleMouseUp() {
+        this.isDrawing = false;
+        this.canvasRef.mainCtx.beginPath();
+    }
 
-        // if (dx >= this.tolerance || dy >= this.tolerance) {
-        //     this.canvasRef.mainCtx.quadraticCurveTo(this.prevX, this.prevY, (x + this.prevX) / 2, (y + this.prevY) / 2);
-        //     this.prevX = x;
-        //     this.prevY = y;
-        //     this.canvasRef.mainCtx.stroke();
-        // }
+    // # Functionality
+    setDrawShape(shape) {
+        this.drawShape = shape;
+    }
 
+    setDrawSize(size) {
+        this.drawSize = size;
+    }
+
+    draw(e) {
         const x = e.offsetX;
         const y = e.offsetY;
         const dx = x - this.prevX;
@@ -167,19 +171,6 @@ class DrawingTool extends CanvasTool {
             this.prevY = y;
         }
     }
-
-    handleMouseUp() {
-        this.isDrawing = false;
-        this.canvasRef.mainCtx.beginPath();
-    }
-
-    setDrawShape(shape) {
-        this.drawShape = shape;
-    }
-
-    setDrawSize(size) {
-        this.drawSize = size;
-    }
 }
 
 export class BrushTool extends DrawingTool {
@@ -224,8 +215,6 @@ export class FillTool extends CanvasTool {
     }
 
     activate() {
-        this.canvasRef.canvasArea.style.cursor = 'url("./assets/cursors/fa-solid-paintbrush.svg")';
-
         this.canvasRef.mainCanvas.addEventListener("click", this.handleClick);
     }
 
@@ -233,8 +222,7 @@ export class FillTool extends CanvasTool {
         this.canvasRef.mainCanvas.removeEventListener("click", this.handleClick);
     }
 
-    // # Functionality
-
+    // # Event Listener
     handleClick() {
         this.canvasRef.mainCtx.fillRect(0, 0, this.canvasRef.mainCanvas.width, this.canvasRef.mainCanvas.height);
     }
@@ -249,9 +237,11 @@ export class ShapeTool extends CanvasTool {
             key: "u",
         });
 
-        this.isPainting = false;
-        this.pathX = 0;
-        this.pathY = 0;
+        this.drawShape = "rectangle";
+        this.enableStroke = false;
+        this.isDrawing = false;
+        this.prevX = 0;
+        this.prevY = 0;
 
         // ? Let functions be referenceable when removing event listeners
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -271,38 +261,182 @@ export class ShapeTool extends CanvasTool {
         this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
     }
 
-    // # Functionality
+    // # Event Listener
     handleMouseDown(e) {
-        this.isPainting = true;
-
-        this.pathX = e.offsetX;
-        this.pathY = e.offsetY;
+        e.preventDefault();
+        this.isDrawing = true;
+        this.prevX = e.offsetX;
+        this.prevY = e.offsetY;
         this.canvasRef.previewCtx.beginPath();
-        this.canvasRef.previewCtx.moveTo(this.pathX, this.pathY);
+        this.canvasRef.previewCtx.moveTo(this.prevX, this.prevY);
     }
 
     handleMouseMove(e) {
-        if (!this.isPainting) return;
+        e.preventDefault();
+        if (!this.isDrawing) return;
         this.canvasRef.previewCtx.clearRect(0, 0, this.canvasRef.previewCanvas.width, this.canvasRef.previewCanvas.height);
-
         this.draw(e);
     }
 
-    handleMouseUp(e) {
-        this.isPainting = false;
+    handleMouseUp() {
+        this.isDrawing = false;
         this.canvasRef.mainCtx.drawImage(this.canvasRef.previewCanvas, 0, 0);
         this.canvasRef.previewCtx.clearRect(0, 0, this.canvasRef.previewCanvas.width, this.canvasRef.previewCanvas.height);
+        this.canvasRef.previewCtx.beginPath();
+    }
+
+    // # Functionality
+    setShape(shape) {
+        this.drawShape = shape;
+    }
+
+    setEnableStroke(enableStroke) {
+        this.enableStroke = enableStroke;
     }
 
     draw(e) {
         const x = e.offsetX;
         const y = e.offsetY;
+        const altPressed = e.altKey;
+        const shiftPressed = e.shiftKey;
 
-        this.canvasRef.previewCtx.beginPath();
-        this.canvasRef.previewCtx.rect(this.pathX, this.pathY, x - this.pathX, y - this.pathY);
-        this.canvasRef.previewCtx.fill();
-        this.canvasRef.previewCtx.stroke();
+        switch (this.drawShape) {
+            case "circle":
+                this.drawCircle(this.canvasRef.previewCtx, this.prevX, this.prevY, x, y, shiftPressed, altPressed, this.enableStroke);
+                break;
+            case "rectangle":
+                this.drawRect(this.canvasRef.previewCtx, this.prevX, this.prevY, x, y, shiftPressed, altPressed, this.enableStroke);
+                break;
+            case "triangle":
+                this.drawTriangle(this.canvasRef.previewCtx, this.prevX, this.prevY, x, y, shiftPressed, altPressed, this.enableStroke);
+                break;
+            default:
+                break;
+        }
     }
+
+    drawCircle(ctx, x1, y1, x2, y2, equilateral = false, centered = false, enableStroke = false) {
+        console.log(ctx.lineWidth);
+        ctx.beginPath();
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+
+        let width, height;
+        if (equilateral) {
+            // Use the larger of |dx| or |dy| as the size for both width and height to maintain equilateral property.
+            const size = Math.max(Math.abs(dx), Math.abs(dy));
+            width = height = size;
+        } else {
+            width = Math.abs(dx);
+            height = Math.abs(dy);
+        }
+
+        // Calculate the center based on whether drawing is centered.
+        let centerX, centerY;
+        if (centered) {
+            centerX = x1;
+            centerY = y1;
+        } else {
+            centerX = x1 + (equilateral ? (dx < 0 ? -width : width) / 2 : dx / 2);
+            centerY = y1 + (equilateral ? (dy < 0 ? -height : height) / 2 : dy / 2);
+        }
+
+        if (equilateral || centered) {
+            // Adjust for equilateral or centered by moving the starting point.
+            x1 = centerX - width / 2;
+            y1 = centerY - height / 2;
+        }
+
+        // For a circle (equilateral), ensure width == height.
+        if (equilateral && !centered) {
+            width = height = Math.sqrt(dx*dx + dy*dy);
+            centerX = x1 + width / 2;
+            centerY = y1 + height / 2;
+        }
+    
+        ctx.save(); // Save current context state
+        ctx.translate(centerX, centerY); // Move to the center of the bounding rect
+        ctx.scale(width / height, 1); // Scale to make the circle into an oval
+        ctx.arc(0, 0, height / 2, 0, 2 * Math.PI); // Draw the circle (which will be scaled to an oval)
+        ctx.restore(); // Restore context to unscaled state
+
+        ctx.closePath();
+        ctx.fill();
+        if (enableStroke) ctx.stroke();
+    }
+    
+    drawRect(ctx, x1, y1, x2, y2, equilateral = false, centered = false, enableStroke = false) {
+        ctx.beginPath();
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lx = Math.abs(dx);
+        const ly = Math.abs(dy);
+        let startX, startY, width, height;
+        if (equilateral) {
+            // Equilateral: the rectangle becomes a square. Use the larger of dx or dy for size
+            const size = Math.max(lx, ly);
+            if (centered) {
+                // Centered: Adjust start positions to keep the square centered at the initial click
+                startX = x1 - size / 2;
+                startY = y1 - size / 2;
+            } else {
+                // Not centered: The square starts at (x1, y1)
+                // Adjust startX/Y to draw upwards/leftwards if dx/dy is negative
+                startX = dx < 0 ? x1 - size : x1;
+                startY = dy < 0 ? y1 - size : y1;
+            }
+            width = height = size;
+        } else {
+            // Non-equilateral
+            if (centered) {
+                // Centered but not equilateral: Adjust start positions to keep the rect centered
+                startX = x1 - lx;
+                startY = y1 - ly;
+                width = 2 * lx;
+                height = 2 * ly;
+            } else {
+                // Standard rectangle drawing from (x1, y1) to (x2, y2)
+                // Adjust startX/Y to draw upwards/leftwards if dx/dy is negative
+                startX = dx < 0 ? x2 : x1;
+                startY = dy < 0 ? y2 : y1;
+                width = lx;
+                height = ly;
+            }
+        }
+    
+        ctx.rect(startX, startY, width, height);
+        ctx.closePath();
+        ctx.fill();
+        if (enableStroke) ctx.stroke();
+    }
+
+    drawTriangle(ctx, prevX, prevY, x, y, equilateral = false, centered = false, enableStroke = false) {
+        ctx.beginPath();
+        const dx = x - prevX;
+        const dy = y - prevY;
+        const sideLength = equilateral ? Math.abs(dx) : Math.sqrt(dx * dx + dy * dy);
+        const height = sideLength * Math.sqrt(3) / 2;
+    
+        let A, B, C;
+        if (centered) {
+            A = { x: prevX - sideLength / 2, y: prevY + height / 3 };
+            B = { x: prevX + sideLength / 2, y: prevY + height / 3 };
+            C = { x: prevX, y: prevY - 2 * height / 3 };
+        } else {
+            const baseY = equilateral ? prevY + (dy < 0 ? -height : height) : prevY + dy;
+            A = { x: prevX, y: prevY };
+            B = { x: prevX + sideLength, y: prevY };
+            C = { x: prevX + sideLength / 2, y: baseY };
+        }
+    
+        ctx.moveTo(A.x, A.y);
+        ctx.lineTo(B.x, B.y);
+        ctx.lineTo(C.x, C.y);
+        ctx.closePath();
+        ctx.fill();
+        if (enableStroke) ctx.stroke();
+    }
+    
 }
 
 export class TextTool extends CanvasTool {

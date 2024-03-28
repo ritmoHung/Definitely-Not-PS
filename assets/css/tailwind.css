@@ -40,7 +40,7 @@ body {
     font-family: "Inter", "Noto Sans TC", sans-serif;
     font-size: var(--fs-400);
     font-weight: var(--fw-normal);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
 }
 
 
@@ -216,6 +216,12 @@ p {
 
 
 /* ---------------------------- STYLES ---------------------------- */
+#canvas-area {
+    &:has([data-tool-id="hand-tool"]) {
+        cursor: grab;
+    }
+}
+
 #main-canvas {
     &[data-tool-id="brush-tool"] {
         cursor: url("../cursors/fa-solid-paintbrush.svg") 0 32, auto;
@@ -232,6 +238,18 @@ p {
     &[data-tool-id="fill-tool"] {
         cursor: url("../cursors/fa-solid-fill-drip.svg") 0 32, auto;
     }
+    
+    &[data-tool-id="shape-tool"] {
+        cursor: crosshair;
+    }
+
+    &[data-tool-id="text-tool"] {
+        cursor: text;
+    }
+
+    &[data-tool-id="zoom-tool"] {
+        cursor: zoom-in;
+    }
 }
 
 button, select, input {
@@ -244,14 +262,10 @@ select {
     @apply p-1 rounded-md;
 }
 
-input[type="range"] {
-
-}
-
 label {
     --size: 1.3em;
     --inner-size: 0.7em;
-    @apply grid items-center gap-1 text-sm cursor-pointer;
+    @apply grid items-center gap-2 text-sm cursor-pointer;
     grid-template-columns: var(--size) auto;
 
     &:has(:disabled) {

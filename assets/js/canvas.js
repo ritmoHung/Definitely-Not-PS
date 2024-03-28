@@ -4,19 +4,19 @@ const BRUSH_SHAPES = [
     {
         name: "圓形",
         value: "circle",
-        icon: "fa-circle",
+        iconClass: "fa-circle",
         isSelected: true,
     },
     {
         name: "正方形",
         value: "square",
-        icon: "fa-square",
+        iconClass: "fa-square",
         isSelected: false,
     },
     {
         name: "三角形",
         value: "triangle",
-        icon: "fa-play",
+        iconClass: "fa-play",
         isSelected: false,
     },
 ];
@@ -43,22 +43,24 @@ const SHAPES = [
     {
         name: "圓形",
         value: "circle",
-        icon: "fa-regular fa-circle",
-        isSelected: true,
+        iconClass: "fa-circle",
+        isSelected: false,
     },
     {
-        name: "正方形",
-        value: "square",
-        icon: "fa-regular fa-square-full",
-        isSelected: false,
+        name: "四邊形",
+        value: "rectangle",
+        iconClass: "fa-square-full",
+        isSelected: true,
     },
     {
         name: "三角形",
         value: "triangle",
-        icon: "fa-regular fa-gem",
+        iconClass: "fa-gem",
         isSelected: false,
     },
 ];
+
+
 
 export default class Canvas {
     constructor(canvasId, appStateRef) {
@@ -78,6 +80,10 @@ export default class Canvas {
         // Eraser Tool
         this.eraserShape = ERASER_SHAPES.find(shape => shape.isSelected).value;
         this.eraserSize = 10;
+        // Shape Tool
+        this.shape = SHAPES.find(shape => shape.isSelected).value;
+        this.enableStroke = false;
+        this.strokeSize = 1;
         // Tools
         this.tools = {  
             "hand-tool": new CanvasTools.HandTool(this),
@@ -97,6 +103,9 @@ export default class Canvas {
         this.initBrushSizeElement();
         this.initEraserShapeElements();
         this.initEraserSizeElement();
+        this.initShapeElements();
+        this.initEnableStrokeElement();
+        this.initStrokeSizeElement();
     }
 
     // # Tools
@@ -175,8 +184,8 @@ export default class Canvas {
         this.setBrushShape(this.brushShape);
     }
     initBrushSizeElement() {
-        const BrushShapeSelect = document.getElementById("brush-size-input");
-        BrushShapeSelect.addEventListener("input", (e) => this.setBrushSize(e.target.value));
+        const BrushShapeInput = document.getElementById("brush-size-input");
+        BrushShapeInput.addEventListener("input", (e) => this.setBrushSize(e.target.value));
 
         this.setBrushSize(this.brushSize);
     }
@@ -192,10 +201,10 @@ export default class Canvas {
         const BrushShapeIcon = document.getElementById("brush-shape-icon");
 
         BRUSH_SHAPES.forEach(shape => {
-            BrushShapeIcon.classList.remove(shape.icon);
+            BrushShapeIcon.classList.remove(shape.iconClass);
         });
         BrushShapeIcon.classList.remove("-rotate-90");
-        BrushShapeIcon.classList.add(`${shapeObject.icon}`);
+        BrushShapeIcon.classList.add(`${shapeObject.iconClass}`);
         if (shapeObject.value === "triangle") {
             BrushShapeIcon.classList.add("-rotate-90");
         }
@@ -226,8 +235,8 @@ export default class Canvas {
         this.setEraserShape(this.eraserShape);
     }
     initEraserSizeElement() {
-        const EraserShapeSelect = document.getElementById("eraser-size-input");
-        EraserShapeSelect.addEventListener("input", (e) => this.setEraserSize(e.target.value));
+        const EraserShapeInput = document.getElementById("eraser-size-input");
+        EraserShapeInput.addEventListener("input", (e) => this.setEraserSize(e.target.value));
 
         this.setEraserSize(this.eraserSize);
     }
@@ -245,6 +254,66 @@ export default class Canvas {
     updateEraserSizeText(value) {
         const EraserSizeText = document.getElementById("eraser-size-text");
         EraserSizeText.setAttribute("data-value", value);
+    }
+
+    // # Shape Tool
+    initShapeElements() {
+        const ShapeSelect = document.getElementById("shape-select");
+        SHAPES.forEach(shape => {
+            const option = document.createElement("option");
+            option.value = shape.value;
+            option.selected = shape.isSelected;
+            option.textContent = shape.name;
+
+            ShapeSelect.appendChild(option);
+        });
+        ShapeSelect.addEventListener("change", (e) => this.setShape(e.target.value));
+        
+        this.setShape(this.shape);
+    }
+    initEnableStrokeElement() {
+        const EnableStroke = document.getElementById("enable-stroke");
+        EnableStroke.addEventListener("change", (e) => this.setEnableStroke(e.target.checked));
+        EnableStroke.checked = this.enableStroke;
+
+        this.setEnableStroke(this.enableStroke);
+    }
+    initStrokeSizeElement() {
+        const ShapeInput = document.getElementById("stroke-size-input");
+        ShapeInput.addEventListener("input", (e) => this.setStrokeSize(e.target.value));
+
+        this.setStrokeSize(this.strokeSize);
+    }
+
+    setShape(selectedShape) {
+        this.tools["shape-tool"].setShape(selectedShape);
+        this.updateShapeIcon(selectedShape);
+
+        console.log(`Shape set to ${selectedShape}`);
+    }
+    updateShapeIcon(selectedShape) {
+        const shapeObject = SHAPES.find(shape => shape.value === selectedShape);
+        const ShapeIcon = document.getElementById("shape-icon");
+
+        SHAPES.forEach(shape => {
+            ShapeIcon.classList.remove(shape.iconClass);
+        });
+        ShapeIcon.classList.add(`${shapeObject.iconClass}`);
+    }
+
+    setEnableStroke(enable) {
+        this.tools["shape-tool"].setEnableStroke(enable);
+        console.log(`${enable ? "Enable" : "Disabled"} strokes`);
+    }
+
+    setStrokeSize(selectedSize) {
+        this.mainCtx.lineWidth = selectedSize;
+        this.previewCtx.lineWidth = selectedSize;
+        this.updateStrokeSizeText(selectedSize);
+    }
+    updateStrokeSizeText(value) {
+        const StrokeSizeText = document.getElementById("stroke-size-text");
+        StrokeSizeText.setAttribute("data-value", value);
     }
 
     // # Utilities

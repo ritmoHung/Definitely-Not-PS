@@ -33,31 +33,31 @@
                     <li>
                         <button id="undo-button" type="button" title="還原" class="btn" aria-label="還原">
                             <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
-                            <span class="hidden md:block">還原</span>
+                            <span class="hidden md:inline">還原</span>
                         </button>
                     </li>
                     <li>
                         <button id="redo-button" type="button" title="重做" class="btn" aria-label="重做">
                             <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
-                            <span class="hidden md:block">重做</span>
+                            <span class="hidden md:inline">重做</span>
                         </button>
                     </li>
                     <li>
                         <button id="discard-button" type="button" title="捨棄" class="btn" aria-label="捨棄">
                             <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                            <span class="hidden md:block">捨棄</span>
+                            <span class="hidden md:inline">捨棄</span>
                         </button>
                     </li>
                     <li>
                         <button id="import-button" type="button" title="匯入" class="btn" aria-label="匯入">
                             <i class="fa-solid fa-file-import" aria-hidden="true"></i>
-                            <span class="hidden md:block">匯入</span>
+                            <span class="hidden md:inline">匯入</span>
                         </button>
                     </li>
                     <li class="test-li">
                         <button id="export-button" type="button" title="匯出" class="btn" aria-label="匯出">
                             <i class="fa-solid fa-file-export" aria-hidden="true"></i>
-                            <span class="hidden md:block">匯出</span>
+                            <span class="hidden md:inline">匯出</span>
                         </button>
                         <div class="dropdown-container">
                             <div class="dropdown tile-rounded-outline">
@@ -126,21 +126,23 @@
                     <li class="test-li">
                         <button type="button" title="形狀設定" class="btn btn-sizing" aria-label="形狀設定">
                             <i id="shape-icon" class="fa-regular" aria-hidden="true"></i>
-                            <span id="shape-stroke-text" class="text-value" data-value="0"></span>
+                            <span id="stroke-size-text" class="text-value" data-value="1"></span>
                         </button>
                         <div class="dropdown-container">
                             <div class="dropdown tile-rounded-outline">
                                 <div class="dropdown-item">
                                     <h5>形狀</h5>
-                                    <select id="shape" name="shape" class="tile-rounded-outline text-xs" onchange="updateShape(this.value)">
-                                        <option value="circle">圓形</option>
-                                        <option value="square" selected>正方形</option>
-                                        <option value="triangle">三角形</option>
+                                    <select id="shape-select" name="shape" class="tile-rounded-outline text-xs">
+                                        <!-- ? Appended by initShapeElements() -->
                                     </select>
                                 </div>
                                 <div class="dropdown-item">
-                                    <h5>筆畫</h5>
-                                    <input id="brush-size" type="range" class="slider" min="0" max="200" value="0" step="1" oninput="updateShapeStrokeSize(this.value)" />
+                                    <h5>外框</h5>
+                                    <label for="enable-stroke">
+                                        <input id="enable-stroke" type="checkbox" >
+                                        <span>啟用</span>
+                                    </label>
+                                    <input id="stroke-size-input" type="range" class="slider" min="1" max="200" value="1" step="1" />
                                 </div>
                             </div>
                         </div>
@@ -193,8 +195,8 @@
                 </ul>
                 <div class="grid justify-center">
                     <div class="grid grid-stack justify-items-center w-full h-6 md:h-10 isolate">
-                        <button id="main-color-button" type="button" title="切換至前景色" class="color-grid fill-color -translate-x-1/3 -translate-y-1/3 z-1" data-color-property="fillColor"></button>
-                        <button id="stroke-color-button" type="button" title="切換至背景色" class="color-grid stroke-color translate-x-1/3 translate-y-1/3" data-color-property="strokeColor"></button>
+                        <button id="fill-color-button" type="button" title="切換至填色" class="color-grid fill-color -translate-x-1/3 -translate-y-1/3 z-1" data-color-property="fillColor"></button>
+                        <button id="stroke-color-button" type="button" title="切換至外框顏色" class="color-grid stroke-color translate-x-1/3 translate-y-1/3" data-color-property="strokeColor"></button>
                     </div>
                     <button id="color-swap-button" type="button" title="交換顏色" class="btn">
                         <i class="fa-solid fa-retweet" aria-hidden="true"></i>
@@ -224,7 +226,7 @@
                             </div>
                         </div>
                     </div>
-                    <fieldset id="picker-mode-fieldset" class="flex justify-end gap-2">
+                    <fieldset id="picker-mode-fieldset" class="flex justify-end gap-4">
                         <!-- ? Appended by insertPickerModeElements() -->
                     </fieldset>
                 </div>
