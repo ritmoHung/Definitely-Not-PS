@@ -83,7 +83,7 @@ export default class Canvas {
         // Shape Tool
         this.shape = SHAPES.find(shape => shape.isSelected).value;
         this.enableStroke = false;
-        this.strokeSize = 1;
+        this.strokeSize = 0;
         // Tools
         this.tools = {  
             "hand-tool": new CanvasTools.HandTool(this),
@@ -104,7 +104,6 @@ export default class Canvas {
         this.initEraserShapeElements();
         this.initEraserSizeElement();
         this.initShapeElements();
-        this.initEnableStrokeElement();
         this.initStrokeSizeElement();
     }
 
@@ -271,13 +270,6 @@ export default class Canvas {
         
         this.setShape(this.shape);
     }
-    initEnableStrokeElement() {
-        const EnableStroke = document.getElementById("enable-stroke");
-        EnableStroke.addEventListener("change", (e) => this.setEnableStroke(e.target.checked));
-        EnableStroke.checked = this.enableStroke;
-
-        this.setEnableStroke(this.enableStroke);
-    }
     initStrokeSizeElement() {
         const ShapeInput = document.getElementById("stroke-size-input");
         ShapeInput.addEventListener("input", (e) => this.setStrokeSize(e.target.value));
@@ -301,14 +293,14 @@ export default class Canvas {
         ShapeIcon.classList.add(`${shapeObject.iconClass}`);
     }
 
-    setEnableStroke(enable) {
-        this.tools["shape-tool"].setEnableStroke(enable);
-        console.log(`${enable ? "Enable" : "Disabled"} strokes`);
-    }
-
     setStrokeSize(selectedSize) {
         this.mainCtx.lineWidth = selectedSize;
         this.previewCtx.lineWidth = selectedSize;
+        if (selectedSize === 0) {
+            this.tools["shape-tool"].setEnableStroke(false);
+        } else {
+            this.tools["shape-tool"].setEnableStroke(true);
+        }
         this.updateStrokeSizeText(selectedSize);
     }
     updateStrokeSizeText(value) {
