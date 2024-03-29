@@ -353,7 +353,7 @@ export class ShapeTool extends CanvasTool {
         const lx = Math.abs(dx);
         const ly = Math.abs(dy);
         const size = Math.min(lx, ly);
-        let centerX, centerY, radius, scaleX;  // ? Always draw a circle then scale on X axis
+        let centerX, centerY, radius, scaleX;
 
         // Center
         if (centered) {
@@ -361,7 +361,7 @@ export class ShapeTool extends CanvasTool {
             centerY = y1;
         } else if (equilateral) {
             centerX = dx < 0 ? x1 - size / 2 : x1 + size / 2;
-            centerY = dy < 0 ? y1 + size / 2 : y1 + size / 2;
+            centerY = dy < 0 ? y1 - size / 2 : y1 + size / 2;
         } else {
             centerX = x1 + dx / 2;
             centerY = y1 + dy / 2;
@@ -382,11 +382,11 @@ export class ShapeTool extends CanvasTool {
             scaleX = lx / ly;
         }
 
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.scale(scaleX, 1);
-        ctx.arc(0, 0, radius, 0, 2 * Math.PI);
-        ctx.restore();
+        ctx.save();                             // 1. Save canvas state
+        ctx.translate(centerX, centerY);        // 2. Translate origin to center of circle
+        ctx.scale(scaleX, 1);                   // 3. Scale the canvas to form a fake oval
+        ctx.arc(0, 0, radius, 0, 2 * Math.PI);  // 4. Draw the circle
+        ctx.restore();                          // 5. Rest canvas state (translate & scale)
 
         ctx.closePath();
         ctx.fill();
