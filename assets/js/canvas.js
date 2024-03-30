@@ -133,6 +133,7 @@ export default class Canvas {
 
         // Handle keydown for tool switch
         document.addEventListener("keydown", (e) => {
+            if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
             const toolEntry = Object.entries(this.tools).find(([id, tool]) => tool.key === e.key);
             if (toolEntry) {
                 const [toolId] = toolEntry;
