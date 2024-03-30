@@ -63,8 +63,29 @@ function handleDiscard() {
 }
 
 function handleImport() {
-    // TODO
-    console.log("To be deved");
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const mainCtx = canvasState.MainCanvas.mainCtx;
+                    const previewCtx = canvasState.MainCanvas.previewCtx;
+                    mainCtx.canvas.width = previewCtx.canvas.width = img.width;
+                    mainCtx.canvas.height = previewCtx.canvas.height = img.height;
+                    mainCtx.drawImage(img, 0, 0);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
+    input.click();
 }
 
 function handleExport(format, withTransBg) {

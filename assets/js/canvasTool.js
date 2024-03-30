@@ -1,3 +1,7 @@
+import { Bezier } from "https://cdn.jsdelivr.net/npm/bezier-js@6.1.4/+esm";
+
+
+
 class CanvasTool {
     constructor(canvasRef, { id, name, iconClass, key }) {
         this.canvasRef = canvasRef;
@@ -63,9 +67,11 @@ class DrawingTool extends CanvasTool {
         this.compositeOperation = toolConfig.compositeOperation ? toolConfig.compositeOperation : "";
         this.isDrawing = false;
         this.tolerance = 5;
-        this.stampDensity = 2;
+        this.stampDensity = 10;
+        this.bezierThreshold = 20;
         this.drawShape = toolConfig.drawShape ? toolConfig.drawShape : "circle";
         this.drawSize = toolConfig.drawSize ? toolConfig.drawSize : 5;
+        this.points = [];
         this.prevX = 0;
         this.prevY = 0;
 
@@ -100,6 +106,7 @@ class DrawingTool extends CanvasTool {
         this.isDrawing = true;
         this.prevX = e.offsetX;
         this.prevY = e.offsetY;
+        this.points = [{ x: e.offsetX, y: e.offsetY }];
         this.canvasRef.mainCtx.beginPath();
         this.canvasRef.mainCtx.moveTo(this.prevX, this.prevY);
     }
@@ -128,48 +135,113 @@ class DrawingTool extends CanvasTool {
         const y = e.offsetY;
         const dx = x - this.prevX;
         const dy = y - this.prevY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (Math.abs(dx) >= this.tolerance || Math.abs(dy) >= this.tolerance) {
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const stamps = Math.max(1, distance * this.stampDensity);
+        const point = { x, y };
+        this.points.push(point);
+        if (this.points.length > 3) this.points.shift();
 
-            for (let i = 1; i <= stamps; i++) {
-                const stampX = this.prevX + (dx * i) / stamps;
-                const stampY = this.prevY + (dy * i) / stamps;
-
-                this.canvasRef.mainCtx.beginPath();
-                switch (this.drawShape) {
-                    case "circle":
-                        this.canvasRef.mainCtx.arc(stampX, stampY, this.drawSize / 2, 0, Math.PI * 2);
-                        break;
-                    case "square":
-                        this.canvasRef.mainCtx.rect(stampX - this.drawSize / 2, stampY - this.drawSize / 2, this.drawSize, this.drawSize);
-                        break;
-                    case "triangle":
-                        const r = this.drawSize / 2;
-                        const s = Math.sqrt(3) * r;
-                        const h = Math.sqrt(3) / 2 * s;
-
-                        const A = { x: stampX - s / 2, y: stampY + h / 3 };
-                        const B = { x: stampX + s / 2, y: stampY + h / 3 };
-                        const C = { x: stampX, y: stampY - 2 * h / 3 };
-
-                        this.canvasRef.mainCtx.moveTo(A.x, A.y);
-                        this.canvasRef.mainCtx.lineTo(B.x, B.y);
-                        this.canvasRef.mainCtx.lineTo(C.x, C.y);
-                        this.canvasRef.mainCtx.closePath();
-                        break;
-                    case "image":
-                        break;
-                    default:
-                        break;
-                }
-                this.canvasRef.mainCtx.fill();
+        // Choose the drawing method based on the linear distance of the 2 latest moves
+        // Use bezier curves if the distance is too far away to avoid n-gon like shapes
+        if (this.shouldDraw(dx, dy)) {
+            if (distance >= this.bezierThreshold) {
+                this.drawBezier();
+            } else {
+                this.drawLinear(dx, dy);
             }
 
+            // Push current point to previous point
             this.prevX = x;
             this.prevY = y;
         }
+    }
+    
+    // Method 1: "Stamp" shapes along the path instead of drawing quadraticCurveTo() curves
+    drawLinear(dx, dy) {
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const stamps = Math.max(1, distance * this.stampDensity);
+
+        for (let i = 1; i <= stamps; i++) {
+            let pt = { x: this.prevX + (dx * i) / stamps, y: this.prevY + (dy * i) / stamps };
+
+            this.canvasRef.mainCtx.beginPath();
+            switch (this.drawShape) {
+                case "circle":
+                    this.stampCircle(pt);
+                    break;
+                case "square":
+                    this.stampSquare(pt);
+                    break;
+                case "triangle":
+                    this.stampTriangle(pt);
+                    break;
+                case "image":
+                    break;
+                default:
+                    break;
+            }
+            this.canvasRef.mainCtx.fill();
+        }
+    }
+
+    // Method 2: Stamp shapes along a bezier curve calculated by the latest 3 moves
+    drawBezier() {
+        if (this.points.length < 3) return;
+
+        const curve = Bezier.quadraticFromPoints(this.points[0], this.points[1], this.points[2], 0.5);
+        const stamps = Math.max(1, curve.length() * this.stampDensity);
+        
+        for (let i = 1; i <= stamps; i++) {
+            const t = i / stamps;
+            if (t < 0.495) continue;
+            const pt = curve.get(t);
+            
+            this.canvasRef.mainCtx.beginPath();
+            switch (this.drawShape) {
+                case "circle":
+                    this.stampCircle(pt);
+                    break;
+                case "square":
+                    this.stampSquare(pt);
+                    break;
+                case "triangle":
+                    this.stampTriangle(pt);
+                    break;
+                case "image":
+                    break;
+                default:
+                    break;
+            }
+            this.canvasRef.mainCtx.fill();
+        }
+    }
+
+    shouldDraw(dx, dy) {
+        return Math.abs(dx) >= this.tolerance || Math.abs(dy) >= this.tolerance;
+    }
+
+    stampCircle(pt) {
+        this.canvasRef.mainCtx.arc(pt.x, pt.y, this.drawSize / 2, 0, Math.PI * 2);
+        
+    }
+
+    stampSquare(pt) {
+        this.canvasRef.mainCtx.rect(pt.x - this.drawSize / 2, pt.y - this.drawSize / 2, this.drawSize, this.drawSize);
+    }
+
+    stampTriangle(pt) {
+        const r = this.drawSize / 2;
+        const s = Math.sqrt(3) * r;
+        const h = Math.sqrt(3) / 2 * s;
+
+        const A = { x: pt.x - s / 2, y: pt.y + h / 3 };
+        const B = { x: pt.x + s / 2, y: pt.y + h / 3 };
+        const C = { x: pt.x, y: pt.y - 2 * h / 3 };
+
+        this.canvasRef.mainCtx.moveTo(A.x, A.y);
+        this.canvasRef.mainCtx.lineTo(B.x, B.y);
+        this.canvasRef.mainCtx.lineTo(C.x, C.y);
+        this.canvasRef.mainCtx.closePath();
     }
 }
 
@@ -257,8 +329,6 @@ export class ShapeTool extends CanvasTool {
         this.canvasRef.mainCanvas.addEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.addEventListener("mousemove", this.handleMouseMove);
         this.canvasRef.mainCanvas.addEventListener("mouseup", this.handleMouseUp);
-        document.addEventListener("keydown", this.handleKeyDown);
-        document.addEventListener("keyup", this.handleKeyUp);
     }
 
     deactivate() {
@@ -267,13 +337,14 @@ export class ShapeTool extends CanvasTool {
         this.canvasRef.mainCanvas.removeEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.removeEventListener("mousemove", this.handleMouseMove);
         this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
-        document.removeEventListener("keydown", this.handleKeyDown);
-        document.removeEventListener("keyup", this.handleKeyUp);
     }
 
     // # Event Listener
     handleMouseDown(e) {
         e.preventDefault();
+        document.addEventListener("keydown", this.handleKeyDown);
+        document.addEventListener("keyup", this.handleKeyUp);
+
         this.isDrawing = true;
         this.prevX = this.x = e.offsetX;
         this.prevY = this.y = e.offsetY;
@@ -287,6 +358,9 @@ export class ShapeTool extends CanvasTool {
     }
 
     handleMouseUp() {
+        document.removeEventListener("keydown", this.handleKeyDown);
+        document.removeEventListener("keyup", this.handleKeyUp);
+
         this.isDrawing = false;
         this.canvasRef.mainCtx.drawImage(this.canvasRef.previewCanvas, 0, 0);
         this.canvasRef.reset(this.canvasRef.previewCtx);
@@ -321,7 +395,6 @@ export class ShapeTool extends CanvasTool {
         let ctx = this.canvasRef.previewCtx;
         this.canvasRef.reset(ctx);
 
-        console.log(e);
         switch (this.drawShape) {
             case "circle":
                 this.drawCircle(
@@ -440,29 +513,45 @@ export class ShapeTool extends CanvasTool {
         if (enableStroke) ctx.stroke();
     }
 
-    drawTriangle(ctx, prevX, prevY, x, y, equilateral = false, centered = false, enableStroke = false) {
+    drawTriangle(ctx, x1, y1, x2, y2, equilateral = false, centered = false, enableStroke = false) {
         ctx.beginPath();
-        const dx = x - prevX;
-        const dy = y - prevY;
-        const sideLength = equilateral ? Math.abs(dx) : Math.sqrt(dx * dx + dy * dy);
-        const height = sideLength * Math.sqrt(3) / 2;
-    
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lx = Math.abs(dx);
+        const ly = Math.abs(dy);
+        
+        const size = equilateral ? Math.max(lx, ly) : Math.sqrt(dx * dx + dy * dy);
+
         let A, B, C;
-        if (centered) {
-            A = { x: prevX - sideLength / 2, y: prevY + height / 3 };
-            B = { x: prevX + sideLength / 2, y: prevY + height / 3 };
-            C = { x: prevX, y: prevY - 2 * height / 3 };
+        if (equilateral && centered) {
+            // Draw an equilateral triangle with centroid at (x1, y1)
+            const height = size * Math.sqrt(3) / 2;
+            A = { x: x1 - size / 2, y: y1 + height / 3 };
+            B = { x: x1 + size / 2, y: y1 + height / 3 };
+            C = { x: x1, y: y1 - 2 * height / 3 };
+        } else if (equilateral) {
+            // Draw an equilateral triangle but not centered
+            const height = size * Math.sqrt(3) / 2;
+            A = { x: x1, y: y2 };
+            B = { x: x2, y: y2 };
+            C = { x: (x1 + x2) / 2, y: y2 - height };
+        } else if (centered) {
+            // Draw a triangle centered at (x1, y1)
+            A = { x: x1 - lx / 2, y: y1 + ly / 2 };
+            B = { x: x1 + lx / 2, y: y1 + ly / 2 };
+            C = { x: x1, y: y1 - ly / 2 };
         } else {
-            const baseY = equilateral ? prevY + (dy < 0 ? -height : height) : prevY + dy;
-            A = { x: prevX, y: prevY };
-            B = { x: prevX + sideLength, y: prevY };
-            C = { x: prevX + sideLength / 2, y: baseY };
+            // Default case: not equilateral or centered
+            A = { x: x1, y: y2 };
+            B = { x: x2, y: y2 };
+            C = { x: (x1 + x2) / 2, y: y1 };
         }
     
         ctx.moveTo(A.x, A.y);
         ctx.lineTo(B.x, B.y);
         ctx.lineTo(C.x, C.y);
         ctx.closePath();
+
         ctx.fill();
         if (enableStroke) ctx.stroke();
     }
