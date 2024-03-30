@@ -33,13 +33,15 @@ This project mimics the UI and some of the tools of Photoshop.
 - Shape Tool - Create basic shapes by click-dragging, controllable by some extra keydown
 - Import image - import and direct paste images to canvas
 - Export canvas options - user can now choose to export as PNG (w/ or w/o transparency) or JPG
+
 :sparkles: **Improved**
 - Tools are now written as classes extended from a base class. Switching event listeners of tools becomes easier to implement!
-- A white <div> is shown behind the canvas instead for the background, leaving the canvas transparent. This solution has several advantages:
+- A white `div` is shown behind the canvas instead for the background, leaving the canvas transparent. This solution has several advantages:
     - Restting the canvas needs only one line of `clearRect()`. No need to then `fillRect()` with white and mess with `fillStyle`.
     - Brush Tool and Eraser Tool can share the same DrawTool class, made possible by passing a different `compositeOperation`. Less code, less anger!
     - Able to export image with transparency.
-- Automatically swap to Bezier interpolation when drawing too fast. This reduces the n-gon like shape for the curves drawn. (Powered by [bezier.js](https://github.com/Pomax/bezierjs))
+- Automatically swap to Bezier interpolation when drawing too fast. This reduces the n-gon like shape for the curves drawn. (Powered by [Bezier.js](https://github.com/Pomax/bezierjs))
+
 :bug: **Bugfix**
 - Shapes stil have strokes even though `lineWidth` is set to 0
     - `CanvasRenderingContext2D.lineWidth` cannot be set to 0
