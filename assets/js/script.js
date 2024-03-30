@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     strokeColorButton.onclick = () => handleClick(strokeColorButton, fillColorButton);
 });
 
-
 // # Basic operations
 document.addEventListener("DOMContentLoaded", () => {
     const UndoButton = document.getElementById("undo-button");

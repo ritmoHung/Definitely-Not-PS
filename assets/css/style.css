@@ -582,14 +582,6 @@ video {
   pointer-events: none;
 }
 
-.static {
-  position: static;
-}
-
-.fixed {
-  position: fixed;
-}
-
 .isolate {
   isolation: isolate;
 }
@@ -815,14 +807,6 @@ video {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-.outline {
-  outline-style: solid;
-}
-
-.filter {
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
-}
-
 /* --------------------------- BREAKPOINTS ---------------------------
  *  xs     sm     md     lg     xl     2xl
  * 360px  576px  768px  992px  1200px 1400px
@@ -1019,9 +1003,26 @@ p {
 .dropdown-container {
   position: absolute;
   top: 100%;
-  left: 0px;
   z-index: 2;
   padding-top: 1rem;
+  right: 0px;
+}
+
+@media (min-width: 576px) {
+  .dropdown-container {
+    right: 50%;
+    --tw-translate-x: 50%;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+}
+
+@media (min-width: 992px) {
+  .dropdown-container {
+    right: auto;
+    left: 50%;
+    --tw-translate-x: -50%;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
 }
 
 .dropdown {

@@ -3,28 +3,50 @@ This project mimics the UI and some of the tools of Photoshop.
 
 ## Scoring
 
-| **Basic components**                             | **Score** | **Check** |
-| :----------------------------------------------- | :-------: | :-------: |
-| Basic control tools                              | 30%       | P         |
-| Text input                                       | 10%       | N         |
-| Cursor icon                                      | 10%       | P         |
-| Refresh button                                   | 5%        | Y         |
+| **Basic components**                             | **Score** | **Check**         |
+| :----------------------------------------------- | :-------: | :---------------: |
+| Basic control tools                              | 30%       | :white_check_mark:|
+| Text input                                       | 10%       | :x:               |
+| Cursor icon                                      | 10%       | :white_check_mark:|
+| Refresh button                                   | 5%        | :white_check_mark:|
 
-| **Advanced tools**                               | **Score** | **Check** |
-| :----------------------------------------------- | :-------: | :-------: |
-| Different brush shapes                           | 15%       | P         |
-| Un/Re-do button                                  | 10%       | N         |
-| Image tool                                       | 5%        | N         |
-| Download                                         | 5%        | Y         |
+| **Advanced tools**                               | **Score** | **Check**         |
+| :----------------------------------------------- | :-------: | :---------------: |
+| Different brush shapes                           | 15%       | :white_check_mark:|
+| Un/Re-do button                                  | 10%       | :x:               |
+| Image tool                                       | 5%        | :white_check_mark:|
+| Download                                         | 5%        | :white_check_mark:|
 
-| **Other useful widgets**                         | **Score** | **Check** |
-| :----------------------------------------------- | :-------: | :-------: |
-| HSL / HSB color picker                           | ?%        | Y         |
-| Hue slider                                       | ?%        | Y         |
-| Key Control (tool change)                        | ?%        | Y         |
-| Key Control (operations)                         | ?%        | N         |
+| **Other useful widgets**                         | **Score** | **Check**         |
+| :----------------------------------------------- | :-------: | :----------------:|
+| HSL / HSB color picker                           | ?%        | :white_check_mark:|
+| Hue slider                                       | ?%        | :white_check_mark:|
+| Key Control (tool change)                        | ?%        | :white_check_mark:|
+| Key Control (operations)                         | ?%        | :x:               |
+| Bezier Interpolation (Draw Tool)                 | ?%        | :white_check_mark:|
 
 ## Changelog
+### 1.2.0 (2024-03-30)
+:rocket: **New**
+- Eraser Tool
+- Fill Tool - Fill the entire canvas with only one click
+- Shape Tool - Create basic shapes by click-dragging, controllable by some extra keydown
+- Import image - import and direct paste images to canvas
+- Export canvas options - user can now choose to export as PNG (w/ or w/o transparency) or JPG
+:sparkles: **Improved**
+- Tools are now written as classes extended from a base class. Switching event listeners of tools becomes easier to implement!
+- A white <div> is shown behind the canvas instead for the background, leaving the canvas transparent. This solution has several advantages:
+    - Restting the canvas needs only one line of `clearRect()`. No need to then `fillRect()` with white and mess with `fillStyle`.
+    - Brush Tool and Eraser Tool can share the same DrawTool class, made possible by passing a different `compositeOperation`. Less code, less anger!
+    - Able to export image with transparency.
+- Automatically swap to Bezier interpolation when drawing too fast. This reduces the n-gon like shape for the curves drawn. (Powered by [bezier.js](https://github.com/Pomax/bezierjs))
+:bug: **Bugfix**
+- Shapes stil have strokes even though `lineWidth` is set to 0
+    - `CanvasRenderingContext2D.lineWidth` cannot be set to 0
+    - Introduce a new flag `enableStroke`, set to true if the input range slider slides to 0
+- Keydowns with control keys pressed also triggers tool change
+    - Check for `e.altKey`, `e.ctrlKey`, `e.metaKey`, and `e.shiftKey` before searching match key
+
 ### 1.1.0 (2024-03-24)
 :rocket: **New**
 - HSL / HSB color picker & selected color display
