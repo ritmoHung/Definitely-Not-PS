@@ -89,6 +89,9 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCanvas.addEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.addEventListener("mousemove", this.handleMouseMove);
         this.canvasRef.mainCanvas.addEventListener("mouseup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handleMouseDown);
+        this.canvasRef.mainCanvas.addEventListener("pointermove", this.handleMouseMove);
+        this.canvasRef.mainCanvas.addEventListener("pointerup", this.handleMouseUp);
     }
 
     deactivate() {
@@ -99,6 +102,9 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCanvas.removeEventListener("mousedown", this.handleMouseDown);
         this.canvasRef.mainCanvas.removeEventListener("mousemove", this.handleMouseMove);
         this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handleMouseDown);
+        this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handleMouseMove);
+        this.canvasRef.mainCanvas.removeEventListener("pointerup", this.handleMouseUp);
     }
 
     // # Event Listener
