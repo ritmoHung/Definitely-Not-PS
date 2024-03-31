@@ -1091,6 +1091,9 @@ p {
     width: 100%;
   }
   & .picker-area {
+    touch-action: none;
+  }
+  & .picker-area {
     overflow: hidden;
   }
   & .picker-area {
@@ -1131,6 +1134,9 @@ p {
   }
   & .hue-picker {
     cursor: pointer;
+  }
+  & .hue-picker {
+    touch-action: none;
   }
   & .hue-picker {
     background: linear-gradient(to top, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);

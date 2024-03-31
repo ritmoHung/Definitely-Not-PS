@@ -67,7 +67,7 @@ class DrawingTool extends CanvasTool {
         this.compositeOperation = toolConfig.compositeOperation ? toolConfig.compositeOperation : "";
         this.isDrawing = false;
         this.tolerance = 5;
-        this.stampDensity = 10;
+        this.stampDensity = 20;
         this.bezierThreshold = 20;
         this.drawShape = toolConfig.drawShape ? toolConfig.drawShape : "circle";
         this.drawSize = toolConfig.drawSize ? toolConfig.drawSize : 5;
@@ -193,6 +193,7 @@ class DrawingTool extends CanvasTool {
     // Method 2: Stamp shapes along a bezier curve calculated by the latest 3 moves
     drawBezier() {
         if (this.points.length < 3) return;
+        console.log("BEZIER");
 
         const curve = Bezier.quadraticFromPoints(this.points[0], this.points[1], this.points[2], 0.5);
         const stamps = Math.max(1, curve.length() * this.stampDensity);

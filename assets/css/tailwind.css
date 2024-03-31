@@ -127,7 +127,6 @@ p {
 
 
 
-
 /* -------------------------- COMPONENTS -------------------------- */
 .tile-rounded-outline {
     @apply bg-neutral-800 border-neutral-500 border-1;
@@ -190,7 +189,7 @@ p {
     }
 
     & .picker-area {
-        @apply relative w-full aspect-square overflow-hidden;
+        @apply relative w-full aspect-square overflow-hidden touch-none;
         cursor: url("../cursors/fa-regular-circle.svg") 16 16, auto;
 
         & .picker-caret {
@@ -200,7 +199,7 @@ p {
     }
 
     & .hue-picker {
-        @apply relative w-5 cursor-pointer;
+        @apply relative w-5 cursor-pointer touch-none;
         background: linear-gradient(to top, #F00, #FF0, #0F0, #0FF, #00F, #F0F, #F00);
 
         & .hue-picker-caret {

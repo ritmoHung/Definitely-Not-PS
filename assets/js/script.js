@@ -180,10 +180,18 @@ document.addEventListener("DOMContentLoaded", () => {
         isDragging = true;
         updateCaretPosition(event);
     });
+    colorPickerArea.addEventListener("pointerdown", (event) => {
+        isDragging = true;
+        updateCaretPosition(event);
+    });
     document.addEventListener("mousemove", (event) => {
         if (isDragging) updateCaretPosition(event);
     });
+    document.addEventListener("pointermove", (event) => {
+        if (isDragging) updateCaretPosition(event);
+    });
     document.addEventListener("mouseup", () => isDragging = false);
+    document.addEventListener("pointerup", () => isDragging = false);
 
     // Update on UI resize
     window.addEventListener("resize", () => applyColor());
@@ -225,12 +233,21 @@ document.addEventListener("DOMContentLoaded", () => {
         isDragging = true;
         updateHueCaretPosition(event);
     });
+    huePicker.addEventListener("pointerdown", (event) => {
+        isDragging = true;
+        updateHueCaretPosition(event);
+    });
     // Updates on caret drag
     huePickerCaret.addEventListener("mousedown", () => isDragging = true);
+    huePickerCaret.addEventListener("pointerdown", () => isDragging = true);
     document.addEventListener("mousemove", (event) => {
         if (isDragging) updateHueCaretPosition(event);
     });
+    document.addEventListener("pointermove", (event) => {
+        if (isDragging) updateHueCaretPosition(event);
+    });
     document.addEventListener("mouseup", () => isDragging = false);
+    document.addEventListener("pointerup", () => isDragging = false);
 
     // Update on UI resize
     window.addEventListener("resize", () => applyHue());
