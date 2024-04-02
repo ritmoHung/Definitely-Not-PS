@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     UndoButton.onclick = () => appState.MainCanvas.undo();
     RedoButton.onclick = () => appState.MainCanvas.redo();
-    DiscardButton.onclick = () => appState.MainCanvas.reset();
+    DiscardButton.onclick = () => { appState.MainCanvas.reset(); appState.MainCanvas.pushHistory(); }
     ImportButton.onclick = () => appState.MainCanvas.import();
     ExportButton.onclick = () => appState.MainCanvas.export(exportFormat, exportWithTransBg);
     ColorSwapButton.onclick = () => appState.swapColors();
@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (e.altKey && e.shiftKey && e.key.toLowerCase() === "c" && !ctrlOrCmd) {
             e.preventDefault();
             appState.MainCanvas.reset();
+            appState.MainCanvas.pushHistory();
         } else if (ctrlOrCmd && e.key === "o" && !e.altKey && !e.shiftKey) {
             e.preventDefault();
             appState.MainCanvas.import();
