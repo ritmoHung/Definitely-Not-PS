@@ -365,6 +365,31 @@ export default class Canvas {
         // console.log("Reset canvas");
     }
 
+    import() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.mainCanvas.width = this.previewCanvas.width = img.width;
+                        this.mainCanvas.height = this.previewCanvas.height = img.height;
+                        this.mainCtx.drawImage(img, 0, 0);
+                        this.pushHistory();
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        input.click();
+    }
+
     export(format, withTransBg) {
         // Create a temporary canvas
         let exportCanvas = document.createElement("canvas");

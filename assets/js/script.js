@@ -34,64 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const ExportFormatSelect = document.getElementById("export-format");
     const ExportBgTrans = document.getElementById("export-bg-trans");
 
-    UndoButton.onclick = () => handleUndo();
-    RedoButton.onclick = () => handleRedo();
-    DiscardButton.onclick = () => handleDiscard();
-    ImportButton.onclick = () => handleImport();
-    ExportButton.onclick = () => handleExport(exportFormat, exportWithTransBg);
-    ColorSwapButton.onclick = () => handleColorSwap();
+    UndoButton.onclick = () => appState.MainCanvas.undo();
+    RedoButton.onclick = () => appState.MainCanvas.redo();
+    DiscardButton.onclick = () => appState.MainCanvas.reset();
+    ImportButton.onclick = () => appState.MainCanvas.import();
+    ExportButton.onclick = () => appState.MainCanvas.export(exportFormat, exportWithTransBg);
+    ColorSwapButton.onclick = () => appState.swapColors();
 
     ExportFormatSelect.addEventListener("change", (e) => handleExportFormat(e.target.value, ExportBgTrans));
     ExportBgTrans.addEventListener("change", (e) => handleExportBgTrans(e.target.checked));
     handleExportFormat(exportFormat, ExportBgTrans);
     handleExportBgTrans(exportWithTransBg);
 });
-
-function handleUndo() {
-    appState.MainCanvas.undo();
-}
-
-function handleRedo() {
-    appState.MainCanvas.redo();
-}
-
-function handleDiscard() {
-    appState.MainCanvas.reset();
-}
-
-function handleImport() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const mainCtx = appState.MainCanvas.mainCtx;
-                    const previewCtx = appState.MainCanvas.previewCtx;
-                    mainCtx.canvas.width = previewCtx.canvas.width = img.width;
-                    mainCtx.canvas.height = previewCtx.canvas.height = img.height;
-                    mainCtx.drawImage(img, 0, 0);
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-    };
-
-    input.click();
-}
-
-function handleExport(format, withTransBg) {
-    appState.MainCanvas.export(format, withTransBg);
-}
-
-function handleColorSwap() {
-    appState.swapColors();
-}
 
 function handleExportFormat(format, checkbox) {
     let disabled = format !== "png";
