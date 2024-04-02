@@ -64,17 +64,19 @@ class DrawingTool extends CanvasTool {
     constructor(canvasRef, toolConfig) {
         super(canvasRef, toolConfig);
 
+        // Settings
         this.compositeOperation = toolConfig.compositeOperation ? toolConfig.compositeOperation : "";
-        this.isDrawing = false;
-        this.didDraw = false;
         this.tolerance = 5;
         this.stampDensity = 20;
         this.bezierThreshold = 20;
         this.drawShape = toolConfig.drawShape ? toolConfig.drawShape : "circle";
         this.drawSize = toolConfig.drawSize ? toolConfig.drawSize : 5;
+
+        // Utilities
+        this.activePointerId = null;
+        this.isDrawing = false;
+        this.didDraw = false;
         this.points = [];
-        this.prevX = 0;
-        this.prevY = 0;
 
         // ? Let functions be referenceable when removing event listeners
         this.handlePointerDown = this.handlePointerDown.bind(this);
@@ -104,24 +106,36 @@ class DrawingTool extends CanvasTool {
 
     // # Event Listener
     handlePointerDown(e) {
+        // Only continue if (1) Is left-click, and (2) No target (active) pointer
+        if (e.button !== 0) return;
+        if (e.button !== 0 && (this.isDrawing === true && this.activePointerId !== null)) return;
+
+        this.activePointerId = e.pointerId;
         this.isDrawing = true;
-        this.prevX = e.offsetX;
-        this.prevY = e.offsetY;
-        this.points = [{ x: e.offsetX, y: e.offsetY }];
+
+        const pt = { x: e.offsetX, y: e.offsetY, pressure: e.pressure };
+        this.points = [pt];
         this.canvasRef.mainCtx.beginPath();
-        this.canvasRef.mainCtx.moveTo(this.prevX, this.prevY);
+        this.canvasRef.mainCtx.moveTo(pt.x, pt.y);
     }
 
     handlePointerMove(e) {
-        if (!this.isDrawing) return;
+        // Only continue if (1) Is drawing, and (2) It's the target (active) pointer
+        if (!this.isDrawing || e.pointerId !== this.activePointerId) return;
+
         this.didDraw = true;
         this.draw(e);
     }
 
-    handlePointerUp() {
-        if (this.didDraw) this.canvasRef.pushHistory();
+    handlePointerUp(e) {
+        // Only continue if it's the target (active) pointer 
+        if (e.pointerId !== this.activePointerId) return;
+
+        if (this.didDraw) {
+            this.didDraw = false;
+            this.canvasRef.pushHistory();  // Only push to history if did draw
+        }
         this.isDrawing = false;
-        this.didDraw = false;
         this.canvasRef.mainCtx.beginPath();
     }
 
@@ -135,38 +149,41 @@ class DrawingTool extends CanvasTool {
     }
 
     draw(e) {
-        const x = e.offsetX;
-        const y = e.offsetY;
-        const dx = x - this.prevX;
-        const dy = y - this.prevY;
+        const pt = { x: e.offsetX, y: e.offsetY, pressure: e.pressure };
+        const prevPt = this.points[this.points.length - 1];
+        const dx = pt.x - prevPt.x;
+        const dy = pt.y - prevPt.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-
-        const point = { x, y };
-        this.points.push(point);
-        if (this.points.length > 3) this.points.shift();
 
         // Choose the drawing method based on the linear distance of the 2 latest moves
         // Use bezier curves if the distance is too far away to avoid n-gon like shapes
         if (this.shouldDraw(dx, dy)) {
+            this.points.push(pt);
+            if (this.points.length > 3) this.points.shift();
+            
             if (distance >= this.bezierThreshold) {
-                this.drawBezier();
+                this.drawBezier(e);
             } else {
-                this.drawLinear(dx, dy);
+                this.drawLinear(e, distance);
             }
-
-            // Push current point to previous point
-            this.prevX = x;
-            this.prevY = y;
         }
     }
     
     // Method 1: "Stamp" shapes along the path instead of drawing quadraticCurveTo() curves
-    drawLinear(dx, dy) {
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    drawLinear(e, distance) {
         const stamps = Math.max(1, distance * this.stampDensity);
 
+        const a = this.points[this.points.length - 2];
+        const b = this.points[this.points.length - 1];
         for (let i = 1; i <= stamps; i++) {
-            let pt = { x: this.prevX + (dx * i) / stamps, y: this.prevY + (dy * i) / stamps };
+            const ratio = i / stamps;
+            const pt = {
+                x: a.x * (1 - ratio) + b.x * ratio,
+                y: a.y * (1 - ratio) + b.y * ratio,
+                pressure: this.supportsPressure(e)
+                    ? a.pressure * (1 - ratio) + b.pressure * ratio
+                    : 1,
+            };
 
             this.canvasRef.mainCtx.beginPath();
             switch (this.drawShape) {
@@ -189,16 +206,21 @@ class DrawingTool extends CanvasTool {
     }
 
     // Method 2: Stamp shapes along a bezier curve calculated by the latest 3 moves
-    drawBezier() {
+    drawBezier(e) {
         if (this.points.length < 3) return;
 
         const curve = Bezier.quadraticFromPoints(this.points[0], this.points[1], this.points[2], 0.5);
         const stamps = Math.max(1, curve.length() * this.stampDensity);
         
+        const a = this.points[this.points.length - 2];
+        const b = this.points[this.points.length - 1];
         for (let i = 1; i <= stamps; i++) {
-            const t = i / stamps;
-            if (t < 0.495) continue;
-            const pt = curve.get(t);
+            const ratio = i / stamps;
+            if (ratio < 0.495) continue;
+            let pt = curve.get(ratio);
+            pt.pressure = this.supportsPressure(e)
+                    ? a.pressure * (1 - ratio) + b.pressure * ratio
+                    : 1,
             
             this.canvasRef.mainCtx.beginPath();
             switch (this.drawShape) {
@@ -225,16 +247,16 @@ class DrawingTool extends CanvasTool {
     }
 
     stampCircle(pt) {
-        this.canvasRef.mainCtx.arc(pt.x, pt.y, this.drawSize / 2, 0, Math.PI * 2);
-        
+        this.canvasRef.mainCtx.arc(pt.x, pt.y, pt.pressure * this.drawSize / 2, 0, Math.PI * 2);
     }
 
     stampSquare(pt) {
-        this.canvasRef.mainCtx.rect(pt.x - this.drawSize / 2, pt.y - this.drawSize / 2, this.drawSize, this.drawSize);
+        const adjustedSize = pt.pressure * this.drawSize;
+        this.canvasRef.mainCtx.rect(pt.x - adjustedSize / 2, pt.y - adjustedSize / 2, adjustedSize, adjustedSize);
     }
 
     stampTriangle(pt) {
-        const r = this.drawSize / 2;
+        const r = pt.pressure * this.drawSize / 2;
         const s = Math.sqrt(3) * r;
         const h = Math.sqrt(3) / 2 * s;
 
@@ -246,6 +268,11 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCtx.lineTo(B.x, B.y);
         this.canvasRef.mainCtx.lineTo(C.x, C.y);
         this.canvasRef.mainCtx.closePath();
+    }
+
+    // A simplfied solution to detect if a device supports pointer pressure
+    supportsPressure(e) {
+        return e.pointerType === "pen" && e.pressure !== 0;
     }
 }
 
@@ -314,69 +341,81 @@ export class ShapeTool extends CanvasTool {
             key: "u",
         });
 
+        // Settings
         this.drawShape = "rectangle";
         this.enableStroke = false;
+
+        // Utilities
+        this.activePointerId = null;
         this.isDrawing = false;
+        this.didDraw = false;
         this.prevX = 0;
         this.prevY = 0;
         this.x = 0;
         this.y = 0;
 
         // ? Let functions be referenceable when removing event listeners
-        this.handleMouseDown = this.handleMouseDown.bind(this);
-        this.handleMouseMove = this.handleMouseMove.bind(this);
-        this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handlePointerDown = this.handlePointerDown.bind(this);
+        this.handlePointerMove = this.handlePointerMove.bind(this);
+        this.handlePointerUp = this.handlePointerUp.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
     }
 
     activate() {
-        this.canvasRef.mainCanvas.addEventListener("mousedown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.addEventListener("mousemove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.addEventListener("mouseup", this.handleMouseUp);
-        this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.addEventListener("pointermove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.addEventListener("pointerup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handlePointerDown);
+        this.canvasRef.mainCanvas.addEventListener("pointermove", this.handlePointerMove);
+        this.canvasRef.mainCanvas.addEventListener("pointerup", this.handlePointerUp);
     }
 
     deactivate() {
         this.canvasRef.reset(this.canvasRef.previewCtx);
 
-        this.canvasRef.mainCanvas.removeEventListener("mousedown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.removeEventListener("mousemove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
-        this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.removeEventListener("pointerup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handlePointerDown);
+        this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handlePointerMove);
+        this.canvasRef.mainCanvas.removeEventListener("pointerup", this.handlePointerUp);
     }
 
     // # Event Listener
-    handleMouseDown(e) {
+    handlePointerDown(e) {
+        // Only continue if (1) Is left-click, and (2) No target (active) pointer
         e.preventDefault();
+        if (e.button !== 0) return;
+        if (this.isDrawing === true && this.activePointerId !== null) return;
         document.addEventListener("keydown", this.handleKeyDown);
         document.addEventListener("keyup", this.handleKeyUp);
 
+        this.activePointerId = e.pointerId;
         this.isDrawing = true;
+
         this.prevX = this.x = e.offsetX;
         this.prevY = this.y = e.offsetY;
         this.canvasRef.previewCtx.beginPath();
     }
 
-    handleMouseMove(e) {
+    handlePointerMove(e) {
+        // Only continue if (1) Is drawing, or (2) It's the target (active) pointer
         e.preventDefault();
-        if (!this.isDrawing) return;
+        if (!this.isDrawing || e.pointerId !== this.activePointerId) return;
+
+        this.didDraw = true;
         this.draw(e);
     }
 
-    handleMouseUp() {
+    handlePointerUp(e) {
+        // Only continue if it's the target (active) pointer 
+        if (e.pointerId !== this.activePointerId) return;
         document.removeEventListener("keydown", this.handleKeyDown);
         document.removeEventListener("keyup", this.handleKeyUp);
 
         this.isDrawing = false;
-        this.canvasRef.mainCtx.drawImage(this.canvasRef.previewCanvas, 0, 0);
+        if (this.didDraw) {
+            this.didDraw = false;
+            this.canvasRef.mainCtx.drawImage(this.canvasRef.previewCanvas, 0, 0);
+            this.canvasRef.pushHistory();  // Only push to history if did draw
+        }
         this.canvasRef.reset(this.canvasRef.previewCtx);
         this.canvasRef.previewCtx.beginPath();
-        this.canvasRef.pushHistory();
     }
 
     handleKeyDown(e) {
