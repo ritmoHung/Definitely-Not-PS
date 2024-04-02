@@ -142,8 +142,6 @@ export default class AppState {
             console.error("Invalid color property");
         }
     }
-
-    // 
 }
 
 class ColorHSL {

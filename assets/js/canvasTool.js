@@ -66,6 +66,7 @@ class DrawingTool extends CanvasTool {
 
         this.compositeOperation = toolConfig.compositeOperation ? toolConfig.compositeOperation : "";
         this.isDrawing = false;
+        this.didDraw = false;
         this.tolerance = 5;
         this.stampDensity = 20;
         this.bezierThreshold = 20;
@@ -76,9 +77,9 @@ class DrawingTool extends CanvasTool {
         this.prevY = 0;
 
         // ? Let functions be referenceable when removing event listeners
-        this.handleMouseDown = this.handleMouseDown.bind(this);
-        this.handleMouseMove = this.handleMouseMove.bind(this);
-        this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handlePointerDown = this.handlePointerDown.bind(this);
+        this.handlePointerMove = this.handlePointerMove.bind(this);
+        this.handlePointerUp = this.handlePointerUp.bind(this);
     }
 
     activate() {
@@ -86,12 +87,9 @@ class DrawingTool extends CanvasTool {
             this.canvasRef.mainCtx.globalCompositeOperation = this.compositeOperation;
         }
 
-        this.canvasRef.mainCanvas.addEventListener("mousedown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.addEventListener("mousemove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.addEventListener("mouseup", this.handleMouseUp);
-        this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.addEventListener("pointermove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.addEventListener("pointerup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handlePointerDown);
+        this.canvasRef.mainCanvas.addEventListener("pointermove", this.handlePointerMove);
+        this.canvasRef.mainCanvas.addEventListener("pointerup", this.handlePointerUp);
     }
 
     deactivate() {
@@ -99,16 +97,13 @@ class DrawingTool extends CanvasTool {
             this.canvasRef.mainCtx.globalCompositeOperation = "source-over";
         }
 
-        this.canvasRef.mainCanvas.removeEventListener("mousedown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.removeEventListener("mousemove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.removeEventListener("mouseup", this.handleMouseUp);
-        this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handleMouseDown);
-        this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handleMouseMove);
-        this.canvasRef.mainCanvas.removeEventListener("pointerup", this.handleMouseUp);
+        this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handlePointerDown);
+        this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handlePointerMove);
+        this.canvasRef.mainCanvas.removeEventListener("pointerup", this.handlePointerUp);
     }
 
     // # Event Listener
-    handleMouseDown(e) {
+    handlePointerDown(e) {
         this.isDrawing = true;
         this.prevX = e.offsetX;
         this.prevY = e.offsetY;
@@ -117,13 +112,16 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCtx.moveTo(this.prevX, this.prevY);
     }
 
-    handleMouseMove(e) {
+    handlePointerMove(e) {
         if (!this.isDrawing) return;
+        this.didDraw = true;
         this.draw(e);
     }
 
-    handleMouseUp() {
+    handlePointerUp() {
+        if (this.didDraw) this.canvasRef.pushHistory();
         this.isDrawing = false;
+        this.didDraw = false;
         this.canvasRef.mainCtx.beginPath();
     }
 
@@ -193,7 +191,6 @@ class DrawingTool extends CanvasTool {
     // Method 2: Stamp shapes along a bezier curve calculated by the latest 3 moves
     drawBezier() {
         if (this.points.length < 3) return;
-        console.log("BEZIER");
 
         const curve = Bezier.quadraticFromPoints(this.points[0], this.points[1], this.points[2], 0.5);
         const stamps = Math.max(1, curve.length() * this.stampDensity);
@@ -304,6 +301,7 @@ export class FillTool extends CanvasTool {
     // # Event Listener
     handleClick() {
         this.canvasRef.mainCtx.fillRect(0, 0, this.canvasRef.mainCanvas.width, this.canvasRef.mainCanvas.height);
+        this.canvasRef.pushHistory();
     }
 }
 
@@ -378,6 +376,7 @@ export class ShapeTool extends CanvasTool {
         this.canvasRef.mainCtx.drawImage(this.canvasRef.previewCanvas, 0, 0);
         this.canvasRef.reset(this.canvasRef.previewCtx);
         this.canvasRef.previewCtx.beginPath();
+        this.canvasRef.pushHistory();
     }
 
     handleKeyDown(e) {

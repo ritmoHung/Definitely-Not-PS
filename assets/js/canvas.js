@@ -65,8 +65,7 @@ const SHAPES = [
 export default class Canvas {
     constructor(canvasId, appStateRef) {
         // # Elements
-        // The canvas by ID
-        this.mainCanvas = document.getElementById(canvasId);
+        this.mainCanvas = document.getElementById(canvasId);  // The canvas by ID
         this.mainCtx = this.mainCanvas.getContext("2d");
         this.previewCanvas = document.getElementById("prev-canvas");
         this.previewCtx = this.previewCanvas.getContext("2d");
@@ -74,6 +73,8 @@ export default class Canvas {
         this.appStateRef = appStateRef;
 
         // # Settings
+        this.history = [];
+        this.historyIndex = 0;
         // Brush Tool
         this.brushShape = BRUSH_SHAPES.find(shape => shape.isSelected).value;
         this.brushSize = 5;
@@ -318,6 +319,24 @@ export default class Canvas {
     setStrokeColor(color) {
         this.mainCtx.strokeStyle = color;
         this.previewCtx.strokeStyle = color;
+    }
+
+    // Basic operations
+    undo() {
+
+    }
+
+    redo() {
+
+    }
+
+    pushHistory(canvas = this.mainCanvas) {
+        const image = canvas.toDataURL();
+        this.history.push(image);
+        this.historyIndex = this.history.length;
+
+        console.log("HISTORY:", this.history);
+        console.log("HISTORY_INDEX:", this.historyIndex);
     }
 
     reset(ctx = this.mainCtx) {
