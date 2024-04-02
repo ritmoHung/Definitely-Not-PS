@@ -41,6 +41,29 @@ document.addEventListener("DOMContentLoaded", () => {
     ExportButton.onclick = () => appState.MainCanvas.export(exportFormat, exportWithTransBg);
     ColorSwapButton.onclick = () => appState.swapColors();
 
+    document.addEventListener("keydown", (e) => {
+        const ctrlOrCmd = e.ctrlKey || e.metaKey;
+
+        if (ctrlOrCmd && e.key === "z" && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            appState.MainCanvas.undo();
+        } else if (ctrlOrCmd && ((e.shiftKey && e.key.toLowerCase() === "z") || e.key === "y")) {
+            e.preventDefault();
+            appState.MainCanvas.redo();
+        } else if (e.altKey && e.shiftKey && e.key.toLowerCase() === "c" && !ctrlOrCmd) {
+            e.preventDefault();
+            appState.MainCanvas.reset();
+        } else if (ctrlOrCmd && e.key === "o" && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            appState.MainCanvas.import();
+        } else if (ctrlOrCmd && e.key === "s" && !e.altKey && !e.shiftKey) {
+            e.preventDefault();
+            appState.MainCanvas.export(exportFormat, exportWithTransBg);
+        } else if (e.key === "x" && !ctrlOrCmd && !e.altKey && !e.shiftKey) {
+            appState.swapColors();
+        }
+    });
+
     ExportFormatSelect.addEventListener("change", (e) => handleExportFormat(e.target.value, ExportBgTrans));
     ExportBgTrans.addEventListener("change", (e) => handleExportBgTrans(e.target.checked));
     handleExportFormat(exportFormat, ExportBgTrans);

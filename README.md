@@ -13,7 +13,7 @@ This project mimics the UI and some of the tools of Photoshop.
 | **Advanced tools**                               | **Score** | **Check**         |
 | :----------------------------------------------- | :-------: | :---------------: |
 | Different brush shapes                           | 15%       | :white_check_mark:|
-| Un/Re-do button                                  | 10%       | :x:               |
+| Un/Re-do button                                  | 10%       | :white_check_mark:|
 | Image tool                                       | 5%        | :white_check_mark:|
 | Download                                         | 5%        | :white_check_mark:|
 
@@ -22,11 +22,18 @@ This project mimics the UI and some of the tools of Photoshop.
 | HSL / HSB color picker                           | ?%        | :white_check_mark:|
 | Hue slider                                       | ?%        | :white_check_mark:|
 | Key Control (tool change)                        | ?%        | :white_check_mark:|
-| Key Control (operations)                         | ?%        | :x:               |
+| Key Control (operations)                         | ?%        | :white_check_mark:|
 | Bezier Interpolation (Draw Tool)                 | ?%        | :white_check_mark:|
 
 ## Changelog
-### 1.2.0 (2024-03-30)
+### 2.1.0 (2024-04-03)
+:rocket: **New**
+
+:sparkles: **Improved**
+
+:bug: **Bugfix**
+
+### 2.0.0 (2024-03-30)
 :rocket: **New**
 - Eraser Tool
 - Fill Tool - Fill the entire canvas with only one click

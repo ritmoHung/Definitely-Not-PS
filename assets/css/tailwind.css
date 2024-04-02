@@ -309,6 +309,20 @@ label {
     }
 }
 
+.btn-label {
+    @apply relative;
+
+    &::before {
+        @apply absolute top-full left-1/2 w-max p-2 mt-4 text-xs -translate-x-1/2;
+        @apply bg-neutral-800 border-neutral-500 border-1 rounded-lg pointer-events-none opacity-0;
+        content: attr(data-key);
+    }
+
+    &:hover::before, &:focus-visible::before {
+        @apply opacity-100;
+    }
+}
+
 .btn-canvas-tool {
     @apply w-10 p-1 aspect-square border-transparent;
 

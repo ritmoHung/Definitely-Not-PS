@@ -29,33 +29,33 @@
             </div>
             <div class="flex items-center p-2">
                 <!-- Basic Operations -->
-                <ul class="self-stretch tool-group !flex [&_button]:h-full" data-direction="col">
+                <ul class="self-stretch tool-group !flex [&_li]:h-full [&_button]:h-full" data-direction="col">
                     <li>
-                        <button id="undo-button" type="button" title="還原" class="btn" aria-label="還原">
+                        <button id="undo-button" type="button" title="還原" class="btn btn-label" aria-label="還原" data-key="Ctrl + Z">
                             <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
                             <span class="hidden md:inline">還原</span>
                         </button>
                     </li>
                     <li>
-                        <button id="redo-button" type="button" title="重做" class="btn" aria-label="重做">
+                        <button id="redo-button" type="button" title="重做" class="btn btn-label" aria-label="還原" data-key="Ctrl + (Y / Shift + Z)">
                             <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
                             <span class="hidden md:inline">重做</span>
                         </button>
                     </li>
                     <li>
-                        <button id="discard-button" type="button" title="捨棄" class="btn" aria-label="捨棄">
+                        <button id="discard-button" type="button" title="捨棄" class="btn btn-label" aria-label="還原" data-key="Alt + Shift + C">
                             <i class="fa-solid fa-trash" aria-hidden="true"></i>
                             <span class="hidden md:inline">捨棄</span>
                         </button>
                     </li>
                     <li>
-                        <button id="import-button" type="button" title="匯入" class="btn" aria-label="匯入">
+                        <button id="import-button" type="button" title="匯入" class="btn btn-label" aria-label="還原" data-key="Ctrl + O">
                             <i class="fa-solid fa-file-import" aria-hidden="true"></i>
                             <span class="hidden md:inline">匯入</span>
                         </button>
                     </li>
                     <li class="test-li">
-                        <button id="export-button" type="button" title="匯出" class="btn" aria-label="匯出">
+                        <button id="export-button" type="button" title="匯出" class="btn btn-label" aria-label="還原" data-key="Ctrl + S">
                             <i class="fa-solid fa-file-export" aria-hidden="true"></i>
                             <span class="hidden md:inline">匯出</span>
                         </button>
@@ -157,7 +157,7 @@
                                 <div class="dropdown-item">
                                     <h5>字型</h5>
                                     <select id="font" name="brush-shape" class="tile-rounded-outline text-xs" onchange="">
-                                        <option value="circle" selected>Inter + Noto Sans TC</option>
+                                        <option value="circle" selected>Inter + Noto Sans TC</option>
                                     </select>
                                 </div>
                                 <div class="dropdown-item">

@@ -1337,6 +1337,63 @@ label {
   }
 }
 
+.btn-label {
+  position: relative;
+  &::before {
+    position: absolute;
+  }
+  &::before {
+    top: 100%;
+  }
+  &::before {
+    left: 50%;
+  }
+  &::before {
+    margin-top: 1rem;
+  }
+  &::before {
+    width: -moz-max-content;
+    width: max-content;
+  }
+  &::before {
+    --tw-translate-x: -50%;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+  &::before {
+    padding: 0.5rem;
+  }
+  &::before {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  &::before {
+    pointer-events: none;
+  }
+  &::before {
+    border-radius: 0.5rem;
+  }
+  &::before {
+    border-width: 1px;
+  }
+  &::before {
+    --tw-border-opacity: 1;
+    border-color: rgb(115 115 115 / var(--tw-border-opacity));
+  }
+  &::before {
+    --tw-bg-opacity: 1;
+    background-color: rgb(38 38 38 / var(--tw-bg-opacity));
+  }
+  &::before {
+    opacity: 0;
+  }
+  &::before {
+    content: attr(data-key);
+  }
+  &:hover::before, &:focus-visible::before {
+    opacity: 1;
+  }
+}
+
 .btn-canvas-tool {
   aspect-ratio: 1 / 1;
   width: 2.5rem;
@@ -1444,5 +1501,9 @@ label {
 }
 
 .\[\&_button\]\:h-full button {
+  height: 100%;
+}
+
+.\[\&_li\]\:h-full li {
   height: 100%;
 }
