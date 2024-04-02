@@ -75,7 +75,7 @@ export default class Canvas {
         // # Settings
         this.history = [];
         this.historyIndex = 0;
-        // Brush Tool
+        this.pushHistory();        // Brush Tool
         this.brushShape = BRUSH_SHAPES.find(shape => shape.isSelected).value;
         this.brushSize = 5;
         // Eraser Tool
@@ -323,25 +323,46 @@ export default class Canvas {
 
     // Basic operations
     undo() {
-
+        if (this.historyIndex === 0) {
+            console.warn("You have reached the origin of the Big-Bang.");
+            return;
+        }
+        this.historyIndex -= 1;
+        this.loadHistory(this.historyIndex);
     }
 
     redo() {
-
+        if (this.historyIndex === this.history.length - 1) {
+            console.warn("Time machine hasn't been invented yet.");
+            return;
+        }
+        this.historyIndex += 1;
+        this.loadHistory(this.historyIndex);
     }
 
     pushHistory(canvas = this.mainCanvas) {
+        if (this.historyIndex < this.history.length - 1) {
+            this.history = this.history.slice(0, this.historyIndex + 1);
+            console.log(`Discard old history branch`);
+        }
         const image = canvas.toDataURL();
         this.history.push(image);
-        this.historyIndex = this.history.length;
+        this.historyIndex = this.history.length - 1;
+    }
 
-        console.log("HISTORY:", this.history);
-        console.log("HISTORY_INDEX:", this.historyIndex);
+    loadHistory(index, ctx = this.mainCtx) {
+        let image = new Image();
+        image.src = this.history[index];
+        image.onload = () => {
+            this.reset(ctx);
+            ctx.drawImage(image, 0, 0);
+        };
+        // console.log(`Load canvas history ${index}`);
     }
 
     reset(ctx = this.mainCtx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        // console.log("Canvas reset");
+        // console.log("Reset canvas");
     }
 
     export(format, withTransBg) {

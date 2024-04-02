@@ -1,6 +1,6 @@
 import AppState from "./appState.js";
 
-const canvasState = new AppState();
+const appState = new AppState();
 let exportFormat = "jpeg";
 let exportWithTransBg = false;
 
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selected.style.zIndex = 2;
         other.style.zIndex = 1;
 
-        canvasState.setSelectedColorProperty(selected.getAttribute("data-color-property"));
+        appState.setSelectedColorProperty(selected.getAttribute("data-color-property"));
     }
 
     fillColorButton.onclick = () => handleClick(fillColorButton, strokeColorButton);
@@ -48,17 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function handleUndo() {
-    // TODO
-    console.log("To be deved");
+    appState.MainCanvas.undo();
 }
 
 function handleRedo() {
-    // TODO
-    console.log("To be deved");
+    appState.MainCanvas.redo();
 }
 
 function handleDiscard() {
-    canvasState.MainCanvas.reset();
+    appState.MainCanvas.reset();
 }
 
 function handleImport() {
@@ -72,8 +70,8 @@ function handleImport() {
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
-                    const mainCtx = canvasState.MainCanvas.mainCtx;
-                    const previewCtx = canvasState.MainCanvas.previewCtx;
+                    const mainCtx = appState.MainCanvas.mainCtx;
+                    const previewCtx = appState.MainCanvas.previewCtx;
                     mainCtx.canvas.width = previewCtx.canvas.width = img.width;
                     mainCtx.canvas.height = previewCtx.canvas.height = img.height;
                     mainCtx.drawImage(img, 0, 0);
@@ -88,11 +86,11 @@ function handleImport() {
 }
 
 function handleExport(format, withTransBg) {
-    canvasState.MainCanvas.export(format, withTransBg);
+    appState.MainCanvas.export(format, withTransBg);
 }
 
 function handleColorSwap() {
-    canvasState.swapColors();
+    appState.swapColors();
 }
 
 function handleExportFormat(format, checkbox) {
@@ -171,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         colorPickerCaret.style.top = `${y}px`;
 
         // Update color
-        canvasState.setColorByPercentages(canvasState.selectedColorProperty, satPercentage, 1 - valPercentage);
+        appState.setColorByPercentages(appState.selectedColorProperty, satPercentage, 1 - valPercentage);
     }
 
     // # Event listeners
@@ -224,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Update hue
         const h = ((1 - huePercentage) * 360) % 360;
-        canvasState.setColor(canvasState.selectedColorProperty, { h });
+        appState.setColor(appState.selectedColorProperty, { h });
     }
 
     // # Event listeners
