@@ -635,6 +635,10 @@ video {
   height: 1.5rem;
 }
 
+.h-\[600px\] {
+  height: 600px;
+}
+
 .h-full {
   height: 100%;
 }
@@ -645,6 +649,10 @@ video {
 
 .w-7 {
   width: 1.75rem;
+}
+
+.w-\[800px\] {
+  width: 800px;
 }
 
 .w-\[clamp\(12rem\2c _30vw\2c _20rem\)\] {
@@ -1213,6 +1221,18 @@ p {
   &[data-tool-id="zoom-tool"] {
     cursor: zoom-in;
   }
+}
+
+canvas {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  /* Internet Explorer/Edge */
+  user-select: none;
 }
 
 button, select, input {

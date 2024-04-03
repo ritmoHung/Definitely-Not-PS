@@ -88,6 +88,8 @@ class DrawingTool extends CanvasTool {
         if (this.compositeOperation) {
             this.canvasRef.mainCtx.globalCompositeOperation = this.compositeOperation;
         }
+        this.canvasRef.mainCtx.lineCap = "round";
+        this.canvasRef.mainCtx.lineJoin = "round";
 
         this.canvasRef.mainCanvas.addEventListener("pointerdown", this.handlePointerDown);
         this.canvasRef.mainCanvas.addEventListener("pointermove", this.handlePointerMove);
@@ -98,6 +100,9 @@ class DrawingTool extends CanvasTool {
         if (this.compositeOperation && this.compositeOperation !== "source-over") {
             this.canvasRef.mainCtx.globalCompositeOperation = "source-over";
         }
+        const tempColor = this.canvasRef.mainCtx.fillStyle;
+        this.canvasRef.setFillColor(this.canvasRef.mainCtx.strokeStyle);
+        this.canvasRef.setStrokeColor(tempColor);
 
         this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handlePointerDown);
         this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handlePointerMove);
@@ -115,6 +120,7 @@ class DrawingTool extends CanvasTool {
 
         const pt = { x: e.offsetX, y: e.offsetY, pressure: e.pressure };
         this.points = [pt];
+        this.canvasRef.mainCtx.lineWidth = this.supportsPressure(e) ? Math.log(e.pressure + 1) * this.drawSize / Math.log(2) : this.drawSize;
         this.canvasRef.mainCtx.beginPath();
         this.canvasRef.mainCtx.moveTo(pt.x, pt.y);
     }
@@ -148,24 +154,47 @@ class DrawingTool extends CanvasTool {
         this.drawSize = size;
     }
 
+    // draw(e) {
+    //     const pt = { x: e.offsetX * 2, y: e.offsetY * 2, pressure: e.pressure };
+    //     const prevPt = this.points[this.points.length - 1];
+    //     const dx = pt.x - prevPt.x;
+    //     const dy = pt.y - prevPt.y;
+    //     const distance = Math.sqrt(dx * dx + dy * dy);
+
+    //     // Choose the drawing method based on the linear distance of the 2 latest moves
+    //     // Use bezier curves if the distance is too far away to avoid n-gon like shapes
+    //     if (this.shouldDraw(dx, dy)) {
+    //         this.points.push(pt);
+    //         if (this.points.length > 3) this.points.shift();
+            
+    //         if (distance >= this.bezierThreshold) {
+    //             this.drawBezier(e);
+    //         } else {
+    //             this.drawLinear(e, distance);
+    //         }
+    //     }
+    // }
+
     draw(e) {
         const pt = { x: e.offsetX, y: e.offsetY, pressure: e.pressure };
-        const prevPt = this.points[this.points.length - 1];
-        const dx = pt.x - prevPt.x;
-        const dy = pt.y - prevPt.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        this.points.push(pt);
 
-        // Choose the drawing method based on the linear distance of the 2 latest moves
-        // Use bezier curves if the distance is too far away to avoid n-gon like shapes
-        if (this.shouldDraw(dx, dy)) {
-            this.points.push(pt);
-            if (this.points.length > 3) this.points.shift();
-            
-            if (distance >= this.bezierThreshold) {
-                this.drawBezier(e);
-            } else {
-                this.drawLinear(e, distance);
-            }
+        this.canvasRef.mainCtx.lineWidth = this.supportsPressure(e)
+            ? (0.2 * Math.log(e.pressure + 1) * this.drawSize / Math.log(2)) + (0.8 * this.canvasRef.mainCtx.lineWidth)
+            : this.drawSize; 
+        const l = this.points.length - 1;
+        if (this.points.length >= 3) {
+            const xc = (this.points[l - 1].x + this.points[l].x) / 2;
+            const yc = (this.points[l - 1].y + this.points[l].y) / 2;
+            this.canvasRef.mainCtx.quadraticCurveTo(this.points[l - 1].x, this.points[l - 1].y, xc, yc);
+            this.canvasRef.mainCtx.stroke();
+            this.canvasRef.mainCtx.beginPath();
+            this.canvasRef.mainCtx.moveTo(xc, yc);
+        } else {
+            const pt = this.points[l];
+            this.canvasRef.mainCtx.beginPath();
+            this.canvasRef.mainCtx.moveTo(pt.x, pt.y);
+            this.canvasRef.mainCtx.stroke();
         }
     }
     
