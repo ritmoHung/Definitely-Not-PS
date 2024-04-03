@@ -100,9 +100,6 @@ class DrawingTool extends CanvasTool {
         if (this.compositeOperation && this.compositeOperation !== "source-over") {
             this.canvasRef.mainCtx.globalCompositeOperation = "source-over";
         }
-        const tempColor = this.canvasRef.mainCtx.fillStyle;
-        this.canvasRef.setFillColor(this.canvasRef.mainCtx.strokeStyle);
-        this.canvasRef.setStrokeColor(tempColor);
 
         this.canvasRef.mainCanvas.removeEventListener("pointerdown", this.handlePointerDown);
         this.canvasRef.mainCanvas.removeEventListener("pointermove", this.handlePointerMove);
@@ -112,6 +109,7 @@ class DrawingTool extends CanvasTool {
     // # Event Listener
     handlePointerDown(e) {
         // Only continue if (1) Is left-click, and (2) No target (active) pointer
+        e.preventDefault();
         if (e.button !== 0) return;
         if (e.button !== 0 && (this.isDrawing === true && this.activePointerId !== null)) return;
 
@@ -127,6 +125,7 @@ class DrawingTool extends CanvasTool {
 
     handlePointerMove(e) {
         // Only continue if (1) Is drawing, and (2) It's the target (active) pointer
+        e.preventDefault();
         if (!this.isDrawing || e.pointerId !== this.activePointerId) return;
 
         this.didDraw = true;
@@ -134,7 +133,7 @@ class DrawingTool extends CanvasTool {
     }
 
     handlePointerUp(e) {
-        // Only continue if it's the target (active) pointer 
+        // Only continue if it's the target (active) pointer
         if (e.pointerId !== this.activePointerId) return;
 
         if (this.didDraw) {
