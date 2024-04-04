@@ -14,6 +14,10 @@ This project mimics the UI and some of the tools of Photoshop.
 | Cursor icon                                 | 10%       | :white_check_mark: |
 | Refresh button                              | 5%        | :white_check_mark: |
 
+> [!NOTE]
+> Cursor icons set through `url()` don't work on macOS devices (even if hovering on the URL shows the exact image wanted), thus fallback to `auto` written in the CSS rule. Removing the `auto` keyword gives "invalid attribute value".
+> Did not find a solution.
+
 | **Advanced Tools**                          | **Score** | **Check**          |
 | :------------------------------------------ | :-------: | :---------------:  |
 | Different ~~Brush~~ Shapes                  | 15%       | :white_check_mark: |
