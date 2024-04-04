@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <meta property="og:title" content="Software Studio Assignment 1 - Web Canvas">
         <meta property="og:image" content="https://i.imgur.com/AkEaWbq_d.webp?maxwidth=760&fidelity=grand">
         <meta property="og:description" content="Definitely not Photoshop">
@@ -209,11 +209,11 @@
             </div>
 
             <!-- # Main Canvas -->
-            <div id="canvas-area" class="grid p-16 overflow-scroll" tabindex="-1">
-                <div class="canvas-container place-self-center" tabindex="-1">
-                    <canvas id="prev-canvas" class="z-3 pointer-events-none touch-none" width="800" height="600"></canvas>
-                    <canvas id="main-canvas" class="z-2 touch-none" width="800" height="600"></canvas>
-                    <div class="w-full h-full bg-white z-1"></div>
+            <div id="canvas-area" class="user-select-none grid p-16 overflow-scroll" tabindex="-1">
+                <div class="canvas-container user-select-none place-self-center" tabindex="-1">
+                    <canvas id="prev-canvas" class="user-select-none z-3 pointer-events-none touch-none" width="800" height="600"></canvas>
+                    <canvas id="main-canvas" class="user-select-none z-2 touch-none" width="800" height="600"></canvas>
+                    <div class="user-select-none w-full h-full bg-white z-1"></div>
                 </div>
             </div>
 
@@ -222,7 +222,7 @@
                 <div id="color-picker" class="color-picker grid gap-2" data-mode="HSB">
                     <div class="flex gap-4">
                         <div id="color-picker-area" class="picker-area" style="background-color: hsl(0, 100%, 50%);">
-                            <div id="color-picker-caret" class="picker-caret" style="left:0; top: 100%;"></div>
+                            <div id="color-picker-caret" class="picker-caret user-select-none" style="left:0; top: 100%;"></div>
                         </div>
                         <div id="hue-picker" class="hue-picker">
                             <div id="hue-picker-caret" class="hue-picker-caret" style="left: 0;">
