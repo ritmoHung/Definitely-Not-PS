@@ -174,6 +174,10 @@ TBD
 ### EOL (2024-04-05)
 This repo is no longer being maintained. Any new features will be introduced, if the author has time, in a new framework based project due to the complexity of developing using Vanilla JavaScript.
 
+### 2.2.1 (2024-04-05)
+:bug: **Bugfix**
+- `loadHistory()` does not work properly when Eraser Tool is active. Temporarily set globalCompositeOperation to `source-over` when drawing history images on to the canvas.
+
 ### 2.2.0 (2024-04-04)
 :rocket: **New**
 - Text Tool - CLick on the canvas to enter text. Once it loses focus, the content will be drawn onto the canvas.
