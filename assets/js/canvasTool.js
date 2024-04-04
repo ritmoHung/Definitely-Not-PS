@@ -298,9 +298,10 @@ class DrawingTool extends CanvasTool {
         this.canvasRef.mainCtx.closePath();
     }
 
-    // A simplfied solution to detect if a device supports pointer pressure
+    // An extremely simplfied solution to detect if a device supports pointer pressure
     supportsPressure(e) {
-        const supports = e.pointerType === "pen" && e.pressure !== 0;
+        // ! Do not detect `e.pressure !== 0` because devices are able to report a 0 pressure
+        const supports = e.pointerType === "pen";
         return supports;
     }
 }
