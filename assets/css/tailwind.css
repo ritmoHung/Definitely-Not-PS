@@ -304,7 +304,7 @@ label {
 }
 
 #text-input {
-    @apply m-0 p-0 align-text-top !important;
+    @apply m-0 p-0 caret-black !important;
     &:focus, &:focus-visible {
         outline: none !important;
         text-decoration: underline #000 1px;
