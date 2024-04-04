@@ -464,8 +464,17 @@ export default class Canvas {
         let image = new Image();
         image.src = this.history[index];
         image.onload = () => {
+            let compositeOperation = ctx.globalCompositeOperation;
             this.reset(ctx);
-            ctx.drawImage(image, 0, 0);
+
+            // ? Ensure it draws with the correct global composite operation
+            if (compositeOperation !== "source-over") {
+                ctx.globalCompositeOperation = "source-over";
+                ctx.drawImage(image, 0, 0);
+                ctx.globalCompositeOperation = compositeOperation;
+            } else {
+                ctx.drawImage(image, 0, 0);
+            }
         };
         // console.log(`Load canvas history ${index}`);
     }
