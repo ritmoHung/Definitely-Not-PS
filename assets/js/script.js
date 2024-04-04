@@ -228,15 +228,3 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update on UI resize
     window.addEventListener("resize", () => applyHue());
 });
-
-
-
-/* ------------------------- SHAPES ------------------------- */
-function updateFontSize(value) {
-    const fontSizeText = document.getElementById("font-size-text");
-    fontSizeText.setAttribute("data-value", value);
-}
-function updateFontWeight(value) {
-    const fontWeightText = document.getElementById("font-weight-text");
-    fontWeightText.setAttribute("data-value", value);
-}

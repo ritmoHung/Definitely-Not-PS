@@ -60,6 +60,33 @@ const SHAPES = [
     },
 ];
 
+const FONTS = [
+    {
+        name: "Inter",
+        value: "Inter",
+        fallback: "sans-serif",
+        isSelected: true,
+    },
+    {
+        name: "Noto Sans TC",
+        value: "Noto Sans TC",
+        fallback: "sans-serif",
+        isSelected: false,
+    },
+    {
+        name: "Arial",
+        value: "Arial",
+        fallback: "sans-serif",
+        isSelected: false,
+    },
+    {
+        name: "JetBrains Mono",
+        value: "JetBrains Mono",
+        fallback: "sans-serif",
+        isSelected: false,
+    }
+];
+
 
 
 export default class Canvas {
@@ -85,6 +112,11 @@ export default class Canvas {
         this.shape = SHAPES.find(shape => shape.isSelected).value;
         this.enableStroke = false;
         this.strokeSize = 0;
+        // Text Tool
+        this.fontFamily = FONTS.find(font => font.isSelected).value;
+        this.fontSize = 16;
+        this.fontWeight = 400;
+        this.lineHeight = 16;
         // Tools
         this.tools = {  
             "hand-tool": new CanvasTools.HandTool(this),
@@ -96,7 +128,10 @@ export default class Canvas {
             "text-tool": new CanvasTools.TextTool(this),
             "zoom-tool": new CanvasTools.ZoomTool(this),
         };
-        this.currentTool = Object.keys(this.tools)[2];  // ? "brush-tool"
+        this.currentTool = Object.keys(this.tools)[2];  // "brush-tool"
+
+        // ? Let functions be referenceable when removing event listeners
+        this.handleGlobalKeyDown = this.handleGlobalKeyDown.bind(this);
 
         // # Initialization
         this.initToolElements();
@@ -106,6 +141,7 @@ export default class Canvas {
         this.initEraserSizeElement();
         this.initShapeElements();
         this.initStrokeSizeElement();
+        this.initFontElements();
     }
 
     // # Tools
@@ -133,17 +169,24 @@ export default class Canvas {
         });
 
         // Handle keydown for tool switch
-        document.addEventListener("keydown", (e) => {
-            if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-            const toolEntry = Object.entries(this.tools).find(([id, tool]) => tool.key === e.key);
-            if (toolEntry) {
-                const [toolId] = toolEntry;
-                this.setCurrentTool(toolId);
-            }
-        });
+        this.attachGlobalShortcuts();
 
         // Initialize
         this.setCurrentTool(this.currentTool);
+    }
+    handleGlobalKeyDown(e) {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        const toolEntry = Object.entries(this.tools).find(([id, tool]) => tool.key === e.key);
+        if (toolEntry) {
+            const [toolId] = toolEntry;
+            this.setCurrentTool(toolId);
+        }
+    }
+    attachGlobalShortcuts() {
+        document.addEventListener("keydown", this.handleGlobalKeyDown);
+    }
+    detachGlobalShortcuts() {
+        document.removeEventListener("keydown", this.handleGlobalKeyDown);
     }
 
     setCurrentTool(toolId) {
@@ -309,6 +352,73 @@ export default class Canvas {
         const StrokeSizeText = document.getElementById("stroke-size-text");
         StrokeSizeText.setAttribute("data-value", value);
     }
+
+    // Text Tool
+    initFontElements() {
+        // Font family
+        const FontSelect = document.getElementById("font-select");
+        FONTS.forEach(font => {
+            const option = document.createElement("option");
+            option.value = font.value;
+            option.selected = font.isSelected;
+            option.textContent = font.name;
+            option.style.fontFamily = `${font.value}, ${font.fallback}`
+
+            FontSelect.appendChild(option);
+        });
+        FontSelect.addEventListener("change", (e) => this.setFontFamily(e.target.value));
+
+        // Font size
+        const FontSizeInput = document.getElementById("font-size-input");
+        FontSizeInput.addEventListener("input", (e) => this.setFontSize(e.target.value));
+
+        // Font weight
+        const FontWeightInput = document.getElementById("font-weight-input");
+        FontWeightInput.addEventListener("input", (e) => this.setFontWeight(e.target.value));
+
+        // Line Height
+        const LineHeightInput = document.getElementById("line-height-input");
+        LineHeightInput.addEventListener("input", (e) => this.setLineHeight(e.target.value));
+        
+        this.setFontFamily(this.fontFamily);
+        this.setFontSize(this.fontSize);
+        this.setFontWeight(this.fontWeight);
+        this.setLineHeight(this.lineHeight);
+    }
+
+    setFontFamily(fontFamily) {
+        this.tools["text-tool"].setFont({ fontFamily });
+        console.log(`Font set to ${fontFamily}`);
+    }
+
+    setFontSize(fontSize) {
+        this.tools["text-tool"].setFont({ fontSize });
+        this.updateFontSizeText(fontSize);
+    }
+    updateFontSizeText(value) {
+        const FontSizeText = document.getElementById("font-size-text");
+        FontSizeText.setAttribute("data-value", value);
+    }
+
+    setFontWeight(fontWeight) {
+        this.tools["text-tool"].setFont({ fontWeight });
+        this.updateFontWeightText(fontWeight);
+        console.log(`Font weight set to ${fontWeight}`);
+    }
+    updateFontWeightText(value) {
+        const FontWeightText = document.getElementById("font-weight-text");
+        FontWeightText.setAttribute("data-value", value);
+    }
+
+    setLineHeight(lineHeight) {
+        this.tools["text-tool"].setLineHeight(lineHeight);
+        this.updateLineHeightText(lineHeight);
+    }
+    updateLineHeightText(value) {
+        const LineHeightText = document.getElementById("line-height-text");
+        LineHeightText.setAttribute("data-value", value);
+    }
+
 
     // # Utilities
     // Colors

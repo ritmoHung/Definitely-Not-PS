@@ -3,29 +3,36 @@ This project mimics the UI and some of the tools of Photoshop.
 
 ## Scoring
 
-| **Basic components**                             | **Score** | **Check**         |
-| :----------------------------------------------- | :-------: | :---------------: |
-| Basic control tools                              | 30%       | :white_check_mark:|
-| Text input                                       | 10%       | :x:               |
-| Cursor icon                                      | 10%       | :white_check_mark:|
-| Refresh button                                   | 5%        | :white_check_mark:|
+| **Basic components**                        | **Score** | **Check**          |
+| :------------------------------------------ | :-------: | :---------------:  |
+| Basic control tools                         | 30%       | :white_check_mark: |
+| Text input                                  | 10%       | :white_check_mark: |
+| Cursor icon                                 | 10%       | :white_check_mark: |
+| Refresh button                              | 5%        | :white_check_mark: |
 
-| **Advanced tools**                               | **Score** | **Check**         |
-| :----------------------------------------------- | :-------: | :---------------: |
-| Different brush shapes                           | 15%       | :white_check_mark:|
-| Un/Re-do button                                  | 10%       | :white_check_mark:|
-| Image tool                                       | 5%        | :white_check_mark:|
-| Download                                         | 5%        | :white_check_mark:|
+| **Advanced tools**                          | **Score** | **Check**          |
+| :------------------------------------------ | :-------: | :---------------:  |
+| Different brush shapes                      | 15%       | :white_check_mark: |
+| Un/Re-do button                             | 10%       | :white_check_mark: |
+| Image tool                                  | 5%        | :white_check_mark: |
+| Download                                    | 5%        | :white_check_mark: |
 
-| **Other useful widgets**                         | **Score** | **Check**         |
-| :----------------------------------------------- | :-------: | :----------------:|
-| HSL / HSB color picker                           | ?%        | :white_check_mark:|
-| Hue slider                                       | ?%        | :white_check_mark:|
-| Key Control (tool change)                        | ?%        | :white_check_mark:|
-| Key Control (operations)                         | ?%        | :white_check_mark:|
-| Bezier Interpolation (Draw Tool)                 | ?%        | :white_check_mark:|
+| **Other useful widgets**                    | **Score** | **Check**          |
+| :------------------------------------------ | :-------: | :----------------: |
+| HSL / HSB color picker                      | ?%        | :white_check_mark: |
+| Hue slider                                  | ?%        | :white_check_mark: |
+| Key Control (tool change)                   | ?%        | :white_check_mark: |
+| Key Control (operations)                    | ?%        | :white_check_mark: |
+| Quadratic Curve (Draw Tool)                 | ?%        | :white_check_mark: |
 
 ## Changelog
+### 2.2.0 (2024-04-04)
+:rocket: **New**
+
+:sparkles: **Improved**
+
+:bug: **Bugfix**
+
 ### 2.1.0 (2024-04-03)
 :rocket: **New**
 

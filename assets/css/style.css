@@ -582,6 +582,10 @@ video {
   pointer-events: none;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .isolate {
   isolation: isolate;
 }
@@ -635,10 +639,6 @@ video {
   height: 1.5rem;
 }
 
-.h-\[600px\] {
-  height: 600px;
-}
-
 .h-full {
   height: 100%;
 }
@@ -649,10 +649,6 @@ video {
 
 .w-7 {
   width: 1.75rem;
-}
-
-.w-\[800px\] {
-  width: 800px;
 }
 
 .w-\[clamp\(12rem\2c _30vw\2c _20rem\)\] {
@@ -817,6 +813,11 @@ video {
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.blur {
+  --tw-blur: blur(8px);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 /* --------------------------- BREAKPOINTS ---------------------------
@@ -1233,6 +1234,7 @@ canvas {
   /* Old versions of Firefox */
   /* Internet Explorer/Edge */
   user-select: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
 button, select, input {
@@ -1320,6 +1322,17 @@ label {
   & span {
     width: -moz-max-content;
     width: max-content;
+  }
+}
+
+div[contenteditable="true"] {
+  margin: 0px !important;
+  padding: 0px !important;
+  vertical-align: text-top !important;
+  &:focus, &:focus-visible {
+    outline: none !important;
+    -webkit-text-decoration: underline #000 1px;
+            text-decoration: underline #000 1px;
   }
 }
 

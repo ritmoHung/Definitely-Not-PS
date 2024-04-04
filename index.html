@@ -14,6 +14,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
@@ -150,26 +151,33 @@
                     <li class="test-li">
                         <button type="button" title="文字尺寸" class="btn btn-sizing" aria-label="文字尺寸">
                             <i id="brush-shape-icon" class="fa-solid fa-font" aria-hidden="true"></i>
-                            <span id="font-size-text" class="text-value" data-value="32"></span>
+                            <span id="font-size-text" class="text-value" data-value="16"></span>
                         </button>
                         <div class="dropdown-container">
                             <div class="dropdown tile-rounded-outline">
                                 <div class="dropdown-item">
                                     <h5>字型</h5>
-                                    <select id="font" name="brush-shape" class="tile-rounded-outline text-xs" onchange="">
-                                        <option value="circle" selected>Inter + Noto Sans TC</option>
+                                    <select id="font-select" name="font" class="tile-rounded-outline text-xs">
+                                        <!-- ? Appended by initFontElements() -->
                                     </select>
                                 </div>
                                 <div class="dropdown-item">
                                     <h5>字級</h5>
-                                    <input id="font-size" type="range" class="slider" min="1" max="200" value="32" step="1" oninput="updateFontSize(this.value)" />
+                                    <input id="font-size-input" type="range" class="slider" min="1" max="200" value="16" step="1" />
                                 </div>
                                 <div class="dropdown-item">
                                     <div class="flex flex-nowrap items-center justify-between gap-2">
                                         <h5>字重</h5>
                                         <span id="font-weight-text" class="text-value" data-value="400"></span>
                                     </div>
-                                    <input id="font-weight" type="range" class="slider" min="300" max="700" value="400" step="100" oninput="updateFontWeight(this.value)" />
+                                    <input id="font-weight-input" type="range" class="slider" min="300" max="700" value="400" step="100" />
+                                </div>
+                                <div class="dropdown-item">
+                                    <div class="flex flex-nowrap items-center justify-between gap-2">
+                                        <h5>行距</h5>
+                                        <span id="line-height-text" class="text-value" data-value="16"></span>
+                                    </div>
+                                    <input id="line-height-input" type="range" class="slider" min="1" max="200" value="16" step="1" />
                                 </div>
                             </div>
                         </div>

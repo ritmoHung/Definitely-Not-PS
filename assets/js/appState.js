@@ -35,7 +35,7 @@ export default class AppState {
         this.fillColor = new ColorHSL(0, 0, 0);
         this.strokeColor = new ColorHSL(0, 0, 100);
         this.setColor("fillColor", { h: 0, s: 0, l: 0 });
-        this.setColor("strokeColor", { h: 0, s: 0, l: 100 });
+        this.setColor("strokeColor", { h: 0, s: 0, l: 0 });
 
         this.insertColorPickerModeElements();
     }

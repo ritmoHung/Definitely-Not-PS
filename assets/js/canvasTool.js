@@ -668,14 +668,113 @@ export class TextTool extends CanvasTool {
             iconClass: "fa-solid fa-i-cursor",
             key: "t",
         });
+
+        // Settings
+        this.fontWeight = 400;
+        this.fontSize = 16;
+        this.fontFamily = "Arial";
+        this.lineHeight = 16;
+
+        // Utilities
+        this.isTexting = false;
+
+        // ? Let functions be referenceable when removing event listeners
+        this.handleClick = this.handleClick.bind(this);
     }
 
     activate() {
-        // TODO
+        this.canvasRef.mainCanvas.addEventListener("click", this.handleClick);
     }
 
     deactivate() {
-        // TODO
+        this.canvasRef.mainCanvas.removeEventListener("click", this.handleClick);
+    }
+
+    // # Event Listener
+    handleClick(e) {
+        if (this.isTexting) return;
+        this.isTexting = true;
+
+        this.canvasRef.detachGlobalShortcuts();
+        this.createContentEditable(e.offsetX, e.offsetY);
+    }
+
+    // # Functionality
+    setFont({ fontWeight = this.fontWeight, fontSize = this.fontSize, fontFamily = this.fontFamily }) {
+        this.fontWeight = fontWeight;
+        this.fontSize = fontSize;
+        this.fontFamily = fontFamily;
+        this.canvasRef.mainCtx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+    }
+
+    setLineHeight(lineHeight) {
+        this.lineHeight = lineHeight;
+    }
+
+    createContentEditable(x, y) {
+        // Remove existing input if any
+        const existingInput = document.getElementById("text-input");
+        if (existingInput) existingInput.remove();
+
+        const div = document.createElement("div");
+        div.id = "text-input";
+        div.contentEditable = true;
+        div.style.position = "absolute";
+        div.style.left = `${this.canvasRef.mainCanvas.offsetLeft + x}px`;
+        div.style.top = `${this.canvasRef.mainCanvas.offsetTop + y - (0.3 * this.fontSize + 10) - 0.5 * (this.lineHeight)}px`;
+        div.style.color = this.canvasRef.mainCtx.fillStyle;
+        div.style.font = this.canvasRef.mainCtx.font;
+        div.style.lineHeight = `${this.lineHeight}px`;
+        document.body.appendChild(div);
+
+        div.focus();
+        
+        div.oninput = (e) => {
+            let text = "";
+            e.target.childNodes.forEach((node, i) => {
+                text += (node.innerText || node.nodeValue || "").replace(/\n/g, "");
+                if (i !== e.target.childNodes.length - 1) text += "\n";
+            });
+
+            if (text === "") div.innerHTML = "";
+        }
+
+        div.onkeydown = (e) => {
+            if (e.key === "Escape" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                div.blur();
+            }
+        }
+
+        div.onpaste = (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData("text");
+            document.execCommand("insertText", false, text);
+        }
+
+        div.onblur = () => {
+            let htmlContent = div.innerHTML;
+            let textContent = htmlContent
+                .replace(/<div>|<p>/gi, '\n')
+                .replace(/<\/div>|<\/p>|<br>/gi, '')
+                .replace(/&nbsp;/gi, ' ')
+                .trim();
+
+            if (textContent) {
+                this.drawText(textContent, x, y, this.lineHeight);
+                this.canvasRef.pushHistory();
+            }
+            div.remove();
+            this.isTexting = false;
+            this.canvasRef.attachGlobalShortcuts();
+        };
+    }
+
+    drawText(text, x, y, lineHeight) {
+        const lines = text.split('\n');
+    
+        for (let i = 0; i < lines.length; i++) {
+            this.canvasRef.mainCtx.fillText(lines[i], x, y + (i * lineHeight));
+        }
     }
 }
 
