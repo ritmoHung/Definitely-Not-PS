@@ -1325,7 +1325,7 @@ label {
   }
 }
 
-div[contenteditable="true"] {
+#text-input {
   margin: 0px !important;
   padding: 0px !important;
   vertical-align: text-top !important;

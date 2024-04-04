@@ -136,12 +136,12 @@ class DrawingTool extends CanvasTool {
         // Only continue if it's the target (active) pointer
         if (e.pointerId !== this.activePointerId) return;
 
+        this.canvasRef.mainCtx.lineWidth = 0;
         if (this.didDraw) {
             this.didDraw = false;
             this.canvasRef.pushHistory();  // Only push to history if did draw
         }
         this.isDrawing = false;
-        this.canvasRef.mainCtx.beginPath();
     }
 
     // # Functionality
@@ -300,7 +300,8 @@ class DrawingTool extends CanvasTool {
 
     // A simplfied solution to detect if a device supports pointer pressure
     supportsPressure(e) {
-        return e.pointerType === "pen" && e.pressure !== 0;
+        const supports = e.pointerType === "pen" && e.pressure !== 0;
+        return supports;
     }
 }
 
@@ -718,7 +719,7 @@ export class TextTool extends CanvasTool {
 
         const div = document.createElement("div");
         div.id = "text-input";
-        div.contentEditable = true;
+        div.contentEditable = "plaintext-only";
         div.style.position = "absolute";
         div.style.left = `${this.canvasRef.mainCanvas.offsetLeft + x}px`;
         div.style.top = `${this.canvasRef.mainCanvas.offsetTop + y - (0.3 * this.fontSize + 10) - 0.5 * (this.lineHeight)}px`;
@@ -743,12 +744,6 @@ export class TextTool extends CanvasTool {
             if (e.key === "Escape" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
                 div.blur();
             }
-        }
-
-        div.onpaste = (e) => {
-            e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData("text");
-            document.execCommand("insertText", false, text);
         }
 
         div.onblur = () => {
