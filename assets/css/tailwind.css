@@ -104,6 +104,15 @@ p {
 .canvas-container {
     @apply grid grid-stack shadow-lg shadow-neutral-700 isolate;
 }
+#canvas-area, .canvas-container, canvas {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
 
 .tool-group {
     @apply gap-2 px-2 border-neutral-500;
@@ -253,16 +262,6 @@ p {
     }
 }
 
-canvas {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-}
-
 button, select, input {
     &:focus-visible {
         outline: #A3A3A3 2px solid !important;
@@ -336,7 +335,7 @@ label {
         content: attr(data-key);
     }
 
-    &:hover::before, &:focus-visible::before {
+    &:hover::before {
         @apply opacity-100;
     }
 }
