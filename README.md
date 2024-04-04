@@ -35,8 +35,17 @@ This project mimics the UI and some of the tools of Photoshop.
 
 ### 2.1.0 (2024-04-03)
 :rocket: **New**
+- Undo & redo - supports Brush Tool & Eraser Tool, Shape Tool, import, and reset
+- Basic operation shortcut keys - do the same operation without having to click on the button
+- Pointer support - User can now operate with touch or pen (e.g., drawing tablets, Apple Pencil). Tools in the following list are supported (click events are supported on default, therefore not listed):
+    - Brush Tool & Eraser Tool
+    - Shape Tool
+    - Color picker & hue picker
+- Pointer pressure support - Pointers that supports pressure automatically draws based on it
 
 :sparkles: **Improved**
+- Basic operation buttons show shortcut key on hover and in focus
+- DrawTool reverts to using quadraticCurveTo() to draw curves due to the smoothness which the "stamping" method could not achieve. Though siad, the stamping method is still reserved for future support of different brush types.
 
 :bug: **Bugfix**
 
@@ -45,8 +54,8 @@ This project mimics the UI and some of the tools of Photoshop.
 - Eraser Tool
 - Fill Tool - Fill the entire canvas with only one click
 - Shape Tool - Create basic shapes by click-dragging, controllable by some extra keydown
-- Import image - import and direct paste images to canvas
-- Export canvas options - user can now choose to export as PNG (w/ or w/o transparency) or JPG
+- Import image - Import and direct paste images to canvas
+- Export canvas options - User can now choose to export as PNG (w/ or w/o transparency) or JPG
 
 :sparkles: **Improved**
 - Tools are now written as classes extended from a base class. Switching event listeners of tools becomes easier to implement!
