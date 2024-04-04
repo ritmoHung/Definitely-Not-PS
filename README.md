@@ -26,12 +26,15 @@ This project mimics the UI and some of the tools of Photoshop.
 | Quadratic Curve (Draw Tool)                 | ?%        | :white_check_mark: |
 
 ## Changelog
+### EOL (2024-04-05)
+This repo is no longer being maintained. Any new features will be introduced, if the author has time, in a new framework based project due to the complexity of developing using Vanilla JavaScript.
+
 ### 2.2.0 (2024-04-04)
 :rocket: **New**
-
-:sparkles: **Improved**
+- Text Tool - CLick on the canvas to enter text. Once it loses focus, the content will be drawn onto the canvas.
 
 :bug: **Bugfix**
+- Some brush strokes suddenly becomes very large when drawing with pointers that supports pressure. `e.pressure === 0` is accidentally added into the `supportsPressure()` function, and since it IS possible for a pointer to report a pressure of 0, it draws by `this.drawSize` for those moves, thus the behavior observed.
 
 ### 2.1.0 (2024-04-03)
 :rocket: **New**
@@ -46,8 +49,6 @@ This project mimics the UI and some of the tools of Photoshop.
 :sparkles: **Improved**
 - Basic operation buttons show shortcut key on hover and in focus
 - DrawTool reverts to using quadraticCurveTo() to draw curves due to the smoothness which the "stamping" method could not achieve. Though siad, the stamping method is still reserved for future support of different brush types.
-
-:bug: **Bugfix**
 
 ### 2.0.0 (2024-03-30)
 :rocket: **New**
